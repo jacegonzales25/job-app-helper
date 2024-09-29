@@ -42,6 +42,6 @@ export const photosRelations = relations(users, ({ many }) => ({
   photos: many(photos),
 }));
 
-export const resumesRelations = relations(users, ({one}) => ({
-    resumes: one(resumes)
-}))
+export const resumesRelations = relations(users, ({ one }) => ({
+  resume: one(resumes),
+}));
