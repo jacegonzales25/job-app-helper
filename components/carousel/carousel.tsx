@@ -2,7 +2,6 @@ export default function Carousel() {
   return (
     <div className="hidden lg:flex w-1/2 items-center justify-center p-8">
       <div className="relative w-full max-w-md aspect-[3/4] bg-gray-800 rounded-lg overflow-hidden">
-
         <h1>Carousel</h1>
         {/* {carouselItems.map((item, index) => (
           <div
