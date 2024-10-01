@@ -45,3 +45,5 @@ export const photosRelations = relations(users, ({ many }) => ({
 export const resumesRelations = relations(users, ({ one }) => ({
   resume: one(resumes),
 }));
+
+// Resume fields

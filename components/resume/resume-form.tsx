@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlusCircle, Trash2 } from "lucide-react";
-
+import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 // Use axios instead
 
 export default function ResumeForm() {
@@ -25,39 +27,46 @@ export default function ResumeForm() {
       ...experiences,
       { company: "", position: "", duration: "", description: "" },
     ]);
+
   const addProject = () =>
     setProjects([...projects, { name: "", description: "" }]);
+
   const addActivity = () =>
     setActivities([
       ...activities,
       { name: "", role: "", duration: "", description: "" },
     ]);
 
-    const [skills, setSkills] = useState([
-      { category: "Languages", items: "" },
-      { category: "Frontend Development", items: "" },
-      { category: "Backend Development", items: "" },
-      { category: "Development Environments", items: "" },
-      { category: "API Development", items: "" },
-      { category: "Tools", items: "" },
-      { category: "Database", items: "" },
-      { category: "Hosting Services", items: "" },
-    ])
-  
-    const addSkill = () => {
-      setSkills([...skills, { category: "", items: "" }])
-    }
-  
-    const updateSkill = (index: number, field: 'category' | 'items', value: string) => {
-      const updatedSkills = [...skills]
-      updatedSkills[index][field] = value
-      setSkills(updatedSkills)
-    }
-  
-    const removeSkill = (index: number) => {
-      const updatedSkills = skills.filter((_, i) => i !== index)
-      setSkills(updatedSkills)
-    }
+  const [skills, setSkills] = useState([
+    { category: "", items: "" },
+    { category: "Languages", items: "" },
+    // { category: "Frontend Development", items: "" },
+    // { category: "Backend Development", items: "" },
+    // { category: "Development Environments", items: "" },
+    // { category: "API Development", items: "" },
+    // { category: "Tools", items: "" },
+    // { category: "Database", items: "" },
+    // { category: "Hosting Services", items: "" },
+  ]);
+
+  const addSkill = () => {
+    setSkills([...skills, { category: "", items: "" }]);
+  };
+
+  const updateSkill = (
+    index: number,
+    field: "category" | "items",
+    value: string
+  ) => {
+    const updatedSkills = [...skills];
+    updatedSkills[index][field] = value;
+    setSkills(updatedSkills);
+  };
+
+  const removeSkill = (index: number) => {
+    const updatedSkills = skills.filter((_, i) => i !== index);
+    setSkills(updatedSkills);
+  };
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -90,10 +99,12 @@ export default function ResumeForm() {
                 <Input
                   placeholder="Skill Category"
                   value={skill.category}
-                  onChange={(e) => updateSkill(index, 'category', e.target.value)}
+                  onChange={(e) =>
+                    updateSkill(index, "category", e.target.value)
+                  }
                   className="flex-grow"
                 />
-                {index >= 8 && (
+                {index >= 1 && (
                   <Button
                     variant="destructive"
                     size="icon"
@@ -106,7 +117,7 @@ export default function ResumeForm() {
               <Textarea
                 placeholder="Enter skills, separated by commas"
                 value={skill.items}
-                onChange={(e) => updateSkill(index, 'items', e.target.value)}
+                onChange={(e) => updateSkill(index, "items", e.target.value)}
               />
             </div>
           ))}
@@ -125,6 +136,30 @@ export default function ResumeForm() {
           <Input placeholder="Institution Name" />
           <Input placeholder="Degree" />
           <Input placeholder="Location" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-[240px] pl-3 text-left font-normal"
+                  // !field.value && "text-muted-foreground"
+                )}
+              >
+                Expected Graduation Date
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                // selected={field.value}
+                // onSelect={field.onChange}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("1900-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
           <Input placeholder="Expected Graduation Date" />
         </CardContent>
       </Card>
