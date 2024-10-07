@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AI Pro Headshots",
-  description: "Generated professional headshots using AI",
+  title: "AI Resume Builder",
+  description: "Generated professional resumes using AI",
 };
 
 export default function DashboardLayout({
