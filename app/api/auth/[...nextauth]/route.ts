@@ -1,0 +1,41 @@
+import NextAuth, { getServerSession } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
+import LinkedInProvider from "next-auth/providers/linkedin";
+
+const handler = NextAuth({
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    }),
+    LinkedInProvider({
+      clientId: process.env.LINKEDIN_CLIENT_ID as string,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET as string,
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/auth/signin",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id; // Attach the user's ID to the token
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string; // Use the ID from the token in the session
+      }
+      return session;
+    },
+  },
+});
+
+export { handler as GET, handler as POST };

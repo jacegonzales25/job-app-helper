@@ -21,10 +21,10 @@ export default function LoginForm() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">
-            Welcome to AI Pro Shots
+            Welcome to AI Resume Builder
           </CardTitle>
           <CardDescription>
-            Generate professional headshots and build ATS-optimized resumes with
+            Build ATS-optimized resumes with
             AI.
           </CardDescription>
         </CardHeader>
