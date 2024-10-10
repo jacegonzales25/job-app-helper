@@ -1,9 +1,13 @@
-import NextAuth, { getServerSession } from "next-auth";
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import LinkedInProvider from "next-auth/providers/linkedin";
+import { JWT } from "next-auth/jwt";
+import { Session, User } from "next-auth";
 
-const handler = NextAuth({
+
+
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -23,19 +27,19 @@ const handler = NextAuth({
     signIn: "/auth/signin",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user } : {token: JWT; user?: User})  {
       if (user) {
-        token.id = user.id; // Attach the user's ID to the token
+        token.id = user.id;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: {session: Session; token: JWT}) {
       if (session.user) {
-        session.user.id = token.id as string; // Use the ID from the token in the session
+        session.user.id = token.id as string;
       }
       return session;
     },
   },
-});
+};
 
-export { handler as GET, handler as POST };
+export default NextAuth(authOptions);

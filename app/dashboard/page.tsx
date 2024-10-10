@@ -6,6 +6,6 @@ export default function Dashboard() {
   return (
     <SessionProvider>
       <DashboardContent />
-    </SessionProvider>
+     </SessionProvider>
   );
 }
