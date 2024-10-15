@@ -20,7 +20,7 @@ export default function LoginForm() {
 
   const handleEmailSignIn = (e: React.FormEvent) => {
     e.preventDefault()
-    signIn('email', { email, callbackUrl: '/' })
+    signIn('email', { email, callbackUrl: '/dashboard' })
   }
 
   return (
