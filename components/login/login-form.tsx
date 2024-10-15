@@ -61,7 +61,7 @@ export default function LoginForm() {
               </form>
             </TabsContent>
             <TabsContent value="google">
-              <Button variant="outline" className="w-full" onClick={() => signIn('google', { callbackUrl: '/' })}>
+              <Button variant="outline" className="w-full" onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -85,7 +85,7 @@ export default function LoginForm() {
               </Button>
             </TabsContent>
             <TabsContent value="github">
-              <Button variant="outline" className="w-full" onClick={() => signIn('github', { callbackUrl: '/' })}>
+              <Button variant="outline" className="w-full" onClick={() => signIn('github', { callbackUrl: '/dashboard' })}>
                 <Github className="w-4 h-4 mr-2" />
                 Continue with GitHub
               </Button>
