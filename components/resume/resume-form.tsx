@@ -331,7 +331,6 @@ export default function ResumeForm() {
               </div>
             </CardContent>
           </Card>
-          {/* Education */}
 
           {/* Technical Skills */}
           <Card>
@@ -341,24 +340,30 @@ export default function ResumeForm() {
             <CardContent className="space-y-4">
               {skillFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
-                  <Input
-                    placeholder="Skill Category"
-                    {...register(`skills.${index}.category`)}
-                  />
-                  {errors.skills?.[index]?.category && (
-                    <p className="text-red-500">
-                      {errors.skills[index]?.category?.message}
-                    </p>
+                  <FormField 
+                  control={form.control}
+                  name={`skills.${index}.category`}
+                  render={({field}) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Skill Category" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  <Textarea
-                    placeholder="Enter skills, separated by commas"
-                    {...register(`skills.${index}.items`)}
                   />
-                  {errors.skills?.[index]?.items && (
-                    <p className="text-red-500">
-                      {errors.skills[index]?.items?.message}
-                    </p>
+                  <FormField
+                  control={form.control}
+                  name={`skills.${index}.items`}
+                  render={({field}) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea placeholder="Enter skills, separated by commas" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
+                  />
                   {index > 0 && (
                     <Button
                       variant="destructive"
@@ -385,6 +390,18 @@ export default function ResumeForm() {
             <CardContent className="space-y-4">
               {experienceFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
+                  <FormField 
+                  control={form.control}
+                  name={`experiences.${index}.company`}
+                  render={({field}) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Company" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                  />
                   <Input
                     placeholder="Company"
                     {...register(`experiences.${index}.company`)}
@@ -429,6 +446,8 @@ export default function ResumeForm() {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Education */}
 
           {/* Projects */}
           <Card>
