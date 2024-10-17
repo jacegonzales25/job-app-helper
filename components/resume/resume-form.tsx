@@ -33,7 +33,7 @@ const resumeSchema = z.object({
         from: z.date({
           required_error: "Please indicate the start of your work",
         }),
-        to: z.date({ required_error: "Please indicate the end of your work" }),
+        to: z.date().optional(),
       }),
       description: z.string(),
     })
@@ -46,7 +46,7 @@ const resumeSchema = z.object({
         from: z.date({
           required_error: "Please indicate the start of your work",
         }),
-        to: z.date({ required_error: "Please indicate the end of your work" }),
+        to: z.date().optional(),
       }),
       companyName: z.string().optional(), // Optional field for freelance or employment-based projects
     })
@@ -73,9 +73,7 @@ const resumeSchema = z.object({
           from: z.date({
             required_error: "Please indicate the start of your work",
           }),
-          to: z.date({
-            required_error: "Please indicate the end of your work",
-          }),
+          to: z.date().optional(),
         }),
         description: z.string(),
       })
@@ -83,7 +81,7 @@ const resumeSchema = z.object({
     .optional(),
   certifications: z.array(
     z.object({
-      
+
     })
   ).optional()
 });
@@ -290,6 +288,7 @@ export default function ResumeForm() {
                   placeholder="Position"
                   {...register(`experiences.${index}.position`)}
                 />
+
                 <Input
                   placeholder="Duration"
                   {...register(`experiences.${index}.duration`)}
