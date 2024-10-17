@@ -340,29 +340,32 @@ export default function ResumeForm() {
             <CardContent className="space-y-4">
               {skillFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
-                  <FormField 
-                  control={form.control}
-                  name={`skills.${index}.category`}
-                  render={({field}) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Skill Category" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  <FormField
+                    control={form.control}
+                    name={`skills.${index}.category`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Skill Category" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                   <FormField
-                  control={form.control}
-                  name={`skills.${index}.items`}
-                  render={({field}) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea placeholder="Enter skills, separated by commas" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                    control={form.control}
+                    name={`skills.${index}.items`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Enter skills, separated by commas"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                   {index > 0 && (
                     <Button
@@ -390,35 +393,60 @@ export default function ResumeForm() {
             <CardContent className="space-y-4">
               {experienceFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
-                  <FormField 
-                  control={form.control}
-                  name={`experiences.${index}.company`}
-                  render={({field}) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Company" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  <FormField
+                    control={form.control}
+                    name={`experiences.${index}.company`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Company" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Input
-                    placeholder="Company"
-                    {...register(`experiences.${index}.company`)}
+                  <FormField
+                    control={form.control}
+                    name={`experiences.${index}.position`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Position/Role" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Input
-                    placeholder="Position"
-                    {...register(`experiences.${index}.position`)}
+                  <FormField
+                    control={form.control}
+                    name={`experiences.${index}.company`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Company" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-
                   <Input
                     placeholder="Duration"
                     {...register(`experiences.${index}.duration`)}
                   />
-                  <Textarea
-                    placeholder="Description"
-                    {...register(`experiences.${index}.description`)}
+
+                  <FormField
+                    control={form.control}
+                    name={`experiences.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea placeholder="Description" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
+
                   {index > 0 && (
                     <Button
                       variant="destructive"
@@ -436,7 +464,10 @@ export default function ResumeForm() {
                   addExperience({
                     company: "",
                     position: "",
-                    duration: "",
+                    duration: {
+                      to: new Date().toISOString(),
+                      from: new Date().toISOString(),
+                    },
                     description: "",
                   })
                 }
@@ -448,8 +479,6 @@ export default function ResumeForm() {
           </Card>
 
           {/* Education */}
-
-          {/* Projects */}
           <Card>
             <CardHeader>
               <CardTitle>Projects</CardTitle>
@@ -457,14 +486,46 @@ export default function ResumeForm() {
             <CardContent className="space-y-4">
               {projectFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
-                  <Input
-                    placeholder="Project Name"
-                    {...register(`projects.${index}.name`)}
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Project Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Textarea
-                    placeholder="Project Description"
-                    {...register(`projects.${index}.description`)}
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea placeholder="Description" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.companyName`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder="Company Name (optional)"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   {index > 0 && (
                     <Button
                       variant="destructive"
@@ -477,7 +538,99 @@ export default function ResumeForm() {
                   )}
                 </div>
               ))}
-              <Button onClick={() => addProject({ name: "", description: "" })}>
+              <Button
+                onClick={() =>
+                  addProject({
+                    name: "",
+                    description: "",
+                    duration: {
+                      from: new Date().toISOString(),
+                      to: new Date().toISOString(),
+                    },
+                    companyName: "",
+                  })
+                }
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Add Project
+              </Button>
+            </CardContent>
+          </Card>
+
+
+          {/* Projects */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Projects</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {projectFields.map((field, index) => (
+                <div key={field.id} className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Project Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea placeholder="Description" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.companyName`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder="Company Name (optional)"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {index > 0 && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeProject(index)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remove Project
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                onClick={() =>
+                  addProject({
+                    name: "",
+                    description: "",
+                    duration: {
+                      from: new Date().toISOString(),
+                      to: new Date().toISOString(),
+                    },
+                    companyName: "",
+                  })
+                }
+              >
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Add Project
               </Button>
@@ -492,22 +645,49 @@ export default function ResumeForm() {
             <CardContent className="space-y-4">
               {activityFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
-                  <Input
-                    placeholder="Activity Name"
-                    {...register(`activities.${index}.name`)}
+                    <FormField
+                    control={form.control}
+                    name={`activities.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea placeholder="Activity Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Input
-                    placeholder="Role"
-                    {...register(`activities.${index}.role`)}
+                    <FormField
+                    control={form.control}
+                    name={`activities.${index}.role`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Role" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
+
                   <Input
                     placeholder="Duration"
                     {...register(`activities.${index}.duration`)}
                   />
-                  <Textarea
-                    placeholder="Description"
-                    {...register(`activities.${index}.description`)}
+
+                  <FormField
+                    control={form.control}
+                    name={`activities.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea placeholder="Description" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
+               
                   {index > 0 && (
                     <Button
                       variant="destructive"
@@ -525,7 +705,10 @@ export default function ResumeForm() {
                   addActivity({
                     name: "",
                     role: "",
-                    duration: "",
+                    duration: {
+                      from: new Date().toISOString(),
+                      to: new Date().toISOString(),
+                    },
                     description: "",
                   })
                 }
