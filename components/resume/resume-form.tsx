@@ -1,110 +1,222 @@
 "use client";
 
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useFieldArray } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-// import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlusCircle, Trash2 } from "lucide-react";
-import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-// Use axios instead
+
+// Define Zod schema for validation
+const resumeSchema = z.object({
+  personalInfo: z.object({
+    fullName: z.string().min(2, { message: "Name is required." }),
+    location: z.string().min(2, { message: "Location is required." }),
+    email: z.string().email({ message: "Invalid email address." }),
+    contactNumber: z.string(),
+    github: z.string().url().optional(),
+    linkedIn: z.string().url().optional(),
+  }),
+  education: z.array(
+    z.object({
+      school: z.string().min(1, { message: "School is required." }),
+      degree: z.string().min(1, { message: "Degree is required." }),
+      major: z.string().min(1, { message: "Major is required." }),
+      graduationDateRange: z.object({from: z.date({required_error: "Please indicate the start of your education"}), to: z.date({required_error: "Please indicate the graduation date"})})
+    })
+  ),
+  skills: z.array(
+    z.object({
+      category: z.string().min(1, { message: "Category is required." }),
+      items: z.string().min(1, { message: "At least one skill is required." }),
+    })
+  ),
+  experiences: z.array(
+    z.object({
+      company: z.string().min(1, { message: "Company is required." }),
+      position: z.string().min(1, { message: "Position is required." }),
+      duration: z.date({ required_error: "Duration is required." }),
+      description: z.string(),
+    })
+  ),
+  projects: z.array(
+    z.object({
+      name: z.string().min(1, { message: "Project name is required." }),
+      description: z.string().min(1, { message: "Description is required." }),
+    })
+  ),
+  activities: z.array(
+    z.object({
+      name: z.string().min(1, { message: "Activity name is required." }),
+      role: z.string().min(1, { message: "Role is required." }),
+      duration: z.date({ required_error: "Duration is required." }),
+      description: z.string(),
+    })
+  ),
+});
+
+const months = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+]
 
 export default function ResumeForm() {
-  const [experiences, setExperiences] = useState([
-    { company: "", position: "", duration: "", description: "" },
-  ]);
-  const [projects, setProjects] = useState([{ name: "", description: "" }]);
-  const [activities, setActivities] = useState([
-    { name: "", role: "", duration: "", description: "" },
-  ]);
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(resumeSchema),
+    defaultValues: {
+      personalInfo: {
+        fullName: "",
+        location: "",
+        email: "",
+        contactNumber: "",
+        github: "",
+        linkedIn: "",
+      },
+      skills: [{ category: "", items: "" }],
+      experiences: [
+        { company: "", position: "", duration: "", description: "" },
+      ],
+      projects: [{ name: "", description: "" }],
+      activities: [{ name: "", role: "", duration: "", description: "" }],
+    },
+  });
 
-  const addExperience = () =>
-    setExperiences([
-      ...experiences,
-      { company: "", position: "", duration: "", description: "" },
-    ]);
+  const {
+    fields: skillFields,
+    append: addSkill,
+    remove: removeSkill,
+  } = useFieldArray({
+    control,
+    name: "skills",
+  });
 
-  const addProject = () =>
-    setProjects([...projects, { name: "", description: "" }]);
+  const {
+    fields: experienceFields,
+    append: addExperience,
+    remove: removeExperience,
+  } = useFieldArray({
+    control,
+    name: "experiences",
+  });
 
-  const addActivity = () =>
-    setActivities([
-      ...activities,
-      { name: "", role: "", duration: "", description: "" },
-    ]);
+  const {
+    fields: projectFields,
+    append: addProject,
+    remove: removeProject,
+  } = useFieldArray({
+    control,
+    name: "projects",
+  });
 
-  const [skills, setSkills] = useState([
-    { category: "", items: "" },
-    { category: "Languages", items: "" },
-    // { category: "Frontend Development", items: "" },
-    // { category: "Backend Development", items: "" },
-    // { category: "Development Environments", items: "" },
-    // { category: "API Development", items: "" },
-    // { category: "Tools", items: "" },
-    // { category: "Database", items: "" },
-    // { category: "Hosting Services", items: "" },
-  ]);
+  const {
+    fields: activityFields,
+    append: addActivity,
+    remove: removeActivity,
+  } = useFieldArray({
+    control,
+    name: "activities",
+  });
 
-  const addSkill = () => {
-    setSkills([...skills, { category: "", items: "" }]);
-  };
-
-  const updateSkill = (
-    index: number,
-    field: "category" | "items",
-    value: string
-  ) => {
-    const updatedSkills = [...skills];
-    updatedSkills[index][field] = value;
-    setSkills(updatedSkills);
-  };
-
-  const removeSkill = (index: number) => {
-    const updatedSkills = skills.filter((_, i) => i !== index);
-    setSkills(updatedSkills);
+  const onSubmit = (data: any) => {
+    console.log(data);
+    // You can send the form data via Axios here
   };
 
   return (
     <div className="container mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold">Resume Builder</h1>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Personal Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Personal Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                placeholder="Full Name"
+                {...register("personalInfo.fullName")}
+              />
+              {errors.personalInfo?.fullName && (
+                <p className="text-red-500">
+                  {errors.personalInfo.fullName.message}
+                </p>
+              )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input placeholder="Full Name" />
-            <Input placeholder="Location" />
-            <Input type="email" placeholder="Email" />
-            <Input placeholder="Contact Number" />
-            <Input placeholder="GitHub Link" />
-            <Input placeholder="LinkedIn" />
-          </div>
-        </CardContent>
-      </Card>
+              <Input
+                placeholder="Location"
+                {...register("personalInfo.location")}
+              />
+              {errors.personalInfo?.location && (
+                <p className="text-red-500">
+                  {errors.personalInfo.location.message}
+                </p>
+              )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Technical Skills</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {skills.map((skill, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center space-x-2">
+              <Input
+                type="email"
+                placeholder="Email"
+                {...register("personalInfo.email")}
+              />
+              {errors.personalInfo?.email && (
+                <p className="text-red-500">
+                  {errors.personalInfo.email.message}
+                </p>
+              )}
+
+              <Input
+                placeholder="Contact Number"
+                {...register("personalInfo.contactNumber")}
+              />
+
+              <Input
+                placeholder="GitHub Link"
+                {...register("personalInfo.github")}
+              />
+              <Input
+                placeholder="LinkedIn"
+                {...register("personalInfo.linkedIn")}
+              />
+            </div>
+          </CardContent>
+        </Card>
+        {/* Education */}
+
+
+        {/* Technical Skills */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Technical Skills</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {skillFields.map((field, index) => (
+              <div key={field.id} className="space-y-2">
                 <Input
                   placeholder="Skill Category"
-                  value={skill.category}
-                  onChange={(e) =>
-                    updateSkill(index, "category", e.target.value)
-                  }
-                  className="flex-grow"
+                  {...register(`skills.${index}.category`)}
                 />
-                {index >= 1 && (
+                {errors.skills?.[index]?.category && (
+                  <p className="text-red-500">
+                    {errors.skills[index]?.category?.message}
+                  </p>
+                )}
+                <Textarea
+                  placeholder="Enter skills, separated by commas"
+                  {...register(`skills.${index}.items`)}
+                />
+                {errors.skills?.[index]?.items && (
+                  <p className="text-red-500">
+                    {errors.skills[index]?.items?.message}
+                  </p>
+                )}
+                {index > 0 && (
                   <Button
                     variant="destructive"
                     size="icon"
@@ -114,238 +226,157 @@ export default function ResumeForm() {
                   </Button>
                 )}
               </div>
-              <Textarea
-                placeholder="Enter skills, separated by commas"
-                value={skill.items}
-                onChange={(e) => updateSkill(index, "items", e.target.value)}
-              />
-            </div>
-          ))}
-          <Button onClick={addSkill}>
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Skill Category
-          </Button>
-        </CardContent>
-      </Card>
+            ))}
+            <Button onClick={() => addSkill({ category: "", items: "" })}>
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Skill Category
+            </Button>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Education</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input placeholder="Institution Name" />
-          <Input placeholder="Degree" />
-          <Input placeholder="Location" />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-[240px] pl-3 text-left font-normal"
-                  // !field.value && "text-muted-foreground"
+        {/* Work Experience */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Work Experience</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {experienceFields.map((field, index) => (
+              <div key={field.id} className="space-y-2">
+                <Input
+                  placeholder="Company"
+                  {...register(`experiences.${index}.company`)}
+                />
+                <Input
+                  placeholder="Position"
+                  {...register(`experiences.${index}.position`)}
+                />
+                <Input
+                  placeholder="Duration"
+                  {...register(`experiences.${index}.duration`)}
+                />
+                <Textarea
+                  placeholder="Description"
+                  {...register(`experiences.${index}.description`)}
+                />
+                {index > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeExperience(index)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove Experience
+                  </Button>
                 )}
-              >
-                Expected Graduation Date
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                // selected={field.value}
-                // onSelect={field.onChange}
-                disabled={(date) =>
-                  date > new Date() || date < new Date("1900-01-01")
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-          <Input placeholder="Expected Graduation Date" />
-        </CardContent>
-      </Card>
+              </div>
+            ))}
+            <Button
+              onClick={() =>
+                addExperience({
+                  company: "",
+                  position: "",
+                  duration: "",
+                  description: "",
+                })
+              }
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Experience
+            </Button>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Work Experience</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {experiences.map((exp, index) => (
-            <div key={index} className="space-y-2">
-              <Input
-                placeholder="Company"
-                value={exp.company}
-                onChange={(e) => {
-                  const newExperiences = [...experiences];
-                  newExperiences[index].company = e.target.value;
-                  setExperiences(newExperiences);
-                }}
-              />
-              <Input
-                placeholder="Position"
-                value={exp.position}
-                onChange={(e) => {
-                  const newExperiences = [...experiences];
-                  newExperiences[index].position = e.target.value;
-                  setExperiences(newExperiences);
-                }}
-              />
-              <Input
-                placeholder="Duration"
-                value={exp.duration}
-                onChange={(e) => {
-                  const newExperiences = [...experiences];
-                  newExperiences[index].duration = e.target.value;
-                  setExperiences(newExperiences);
-                }}
-              />
-              <Textarea
-                placeholder="Description"
-                value={exp.description}
-                onChange={(e) => {
-                  const newExperiences = [...experiences];
-                  newExperiences[index].description = e.target.value;
-                  setExperiences(newExperiences);
-                }}
-              />
-              {index > 0 && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => {
-                    const newExperiences = experiences.filter(
-                      (_, i) => i !== index
-                    );
-                    setExperiences(newExperiences);
-                  }}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Remove Experience
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button onClick={addExperience}>
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Experience
-          </Button>
-        </CardContent>
-      </Card>
+        {/* Projects */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Projects</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {projectFields.map((field, index) => (
+              <div key={field.id} className="space-y-2">
+                <Input
+                  placeholder="Project Name"
+                  {...register(`projects.${index}.name`)}
+                />
+                <Textarea
+                  placeholder="Project Description"
+                  {...register(`projects.${index}.description`)}
+                />
+                {index > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeProject(index)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove Project
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button onClick={() => addProject({ name: "", description: "" })}>
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Project
+            </Button>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Projects</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {projects.map((project, index) => (
-            <div key={index} className="space-y-2">
-              <Input
-                placeholder="Project Name"
-                value={project.name}
-                onChange={(e) => {
-                  const newProjects = [...projects];
-                  newProjects[index].name = e.target.value;
-                  setProjects(newProjects);
-                }}
-              />
-              <Textarea
-                placeholder="Project Description"
-                value={project.description}
-                onChange={(e) => {
-                  const newProjects = [...projects];
-                  newProjects[index].description = e.target.value;
-                  setProjects(newProjects);
-                }}
-              />
-              {index > 0 && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => {
-                    const newProjects = projects.filter((_, i) => i !== index);
-                    setProjects(newProjects);
-                  }}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Remove Project
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button onClick={addProject}>
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Project
-          </Button>
-        </CardContent>
-      </Card>
+        {/* Leadership Experience & Activities */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Leadership Experience & Activities</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {activityFields.map((field, index) => (
+              <div key={field.id} className="space-y-2">
+                <Input
+                  placeholder="Activity Name"
+                  {...register(`activities.${index}.name`)}
+                />
+                <Input
+                  placeholder="Role"
+                  {...register(`activities.${index}.role`)}
+                />
+                <Input
+                  placeholder="Duration"
+                  {...register(`activities.${index}.duration`)}
+                />
+                <Textarea
+                  placeholder="Description"
+                  {...register(`activities.${index}.description`)}
+                />
+                {index > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeActivity(index)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove Activity
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              onClick={() =>
+                addActivity({
+                  name: "",
+                  role: "",
+                  duration: "",
+                  description: "",
+                })
+              }
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Activity
+            </Button>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Leadership Experience & Activities</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {activities.map((activity, index) => (
-            <div key={index} className="space-y-2">
-              <Input
-                placeholder="Activity Name"
-                value={activity.name}
-                onChange={(e) => {
-                  const newActivities = [...activities];
-                  newActivities[index].name = e.target.value;
-                  setActivities(newActivities);
-                }}
-              />
-              <Input
-                placeholder="Role"
-                value={activity.role}
-                onChange={(e) => {
-                  const newActivities = [...activities];
-                  newActivities[index].role = e.target.value;
-                  setActivities(newActivities);
-                }}
-              />
-              <Input
-                placeholder="Duration"
-                value={activity.duration}
-                onChange={(e) => {
-                  const newActivities = [...activities];
-                  newActivities[index].duration = e.target.value;
-                  setActivities(newActivities);
-                }}
-              />
-              <Textarea
-                placeholder="Description"
-                value={activity.description}
-                onChange={(e) => {
-                  const newActivities = [...activities];
-                  newActivities[index].description = e.target.value;
-                  setActivities(newActivities);
-                }}
-              />
-              {index > 0 && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => {
-                    const newActivities = activities.filter(
-                      (_, i) => i !== index
-                    );
-                    setActivities(newActivities);
-                  }}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Remove Activity
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button onClick={addActivity}>
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Activity
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Button className="w-full">Generate Resume</Button>
+        <Button type="submit" className="w-full">
+          Generate Resume
+        </Button>
+      </form>
     </div>
   );
 }
