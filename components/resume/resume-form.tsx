@@ -19,14 +19,6 @@ const resumeSchema = z.object({
     github: z.string().url().optional(),
     linkedIn: z.string().url().optional(),
   }),
-  education: z.array(
-    z.object({
-      school: z.string().min(1, { message: "School is required." }),
-      degree: z.string().min(1, { message: "Degree is required." }),
-      major: z.string().min(1, { message: "Major is required." }),
-      graduationDateRange: z.object({from: z.date({required_error: "Please indicate the start of your education"}), to: z.date({required_error: "Please indicate the graduation date"})})
-    })
-  ),
   skills: z.array(
     z.object({
       category: z.string().min(1, { message: "Category is required." }),
@@ -37,7 +29,12 @@ const resumeSchema = z.object({
     z.object({
       company: z.string().min(1, { message: "Company is required." }),
       position: z.string().min(1, { message: "Position is required." }),
-      duration: z.date({ required_error: "Duration is required." }),
+      duration: z.object({
+        from: z.date({
+          required_error: "Please indicate the start of your work",
+        }),
+        to: z.date({ required_error: "Please indicate the end of your work" }),
+      }),
       description: z.string(),
     })
   ),
@@ -45,22 +42,66 @@ const resumeSchema = z.object({
     z.object({
       name: z.string().min(1, { message: "Project name is required." }),
       description: z.string().min(1, { message: "Description is required." }),
+      duration: z.object({
+        from: z.date({
+          required_error: "Please indicate the start of your work",
+        }),
+        to: z.date({ required_error: "Please indicate the end of your work" }),
+      }),
+      companyName: z.string().optional(), // Optional field for freelance or employment-based projects
     })
   ),
-  activities: z.array(
+  education: z.array(
     z.object({
-      name: z.string().min(1, { message: "Activity name is required." }),
-      role: z.string().min(1, { message: "Role is required." }),
-      duration: z.date({ required_error: "Duration is required." }),
-      description: z.string(),
+      school: z.string().min(1, { message: "School is required." }),
+      degree: z.string().min(1, { message: "Degree is required." }),
+      major: z.string().min(1, { message: "Major is required." }),
+      graduationDateRange: z.object({
+        from: z.date({
+          required_error: "Please indicate the start of your education",
+        }),
+        to: z.date({ required_error: "Please indicate the graduation date" }),
+      }),
     })
-  ),
+  ),  
+  activities: z
+    .array(
+      z.object({
+        name: z.string().min(1, { message: "Activity name is required." }),
+        role: z.string().min(1, { message: "Role is required." }),
+        duration: z.object({
+          from: z.date({
+            required_error: "Please indicate the start of your work",
+          }),
+          to: z.date({
+            required_error: "Please indicate the end of your work",
+          }),
+        }),
+        description: z.string(),
+      })
+    )
+    .optional(),
+  certifications: z.array(
+    z.object({
+      
+    })
+  ).optional()
 });
 
 const months = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-]
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 export default function ResumeForm() {
   const {
@@ -188,7 +229,6 @@ export default function ResumeForm() {
           </CardContent>
         </Card>
         {/* Education */}
-
 
         {/* Technical Skills */}
         <Card>
