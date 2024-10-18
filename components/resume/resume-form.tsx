@@ -3,10 +3,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { PlusCircle, Trash2 } from "lucide-react";
 import {
   Form,
@@ -14,8 +23,9 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  FormLabel,
+  // FormDescription,
 } from "../ui/form";
-import { DatePicker } from "../ui/date-picker";
 
 // Define Zod schema for validation
 const resumeSchema = z.object({
@@ -108,21 +118,6 @@ const resumeSchema = z.object({
     .optional(),
 });
 
-const months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
 export default function ResumeForm() {
   const form = useForm({
     resolver: zodResolver(resumeSchema),
@@ -141,8 +136,8 @@ export default function ResumeForm() {
           company: "",
           position: "",
           duration: {
-            from: new Date().toISOString(),
-            to: new Date().toISOString(),
+            from: new Date(),
+            to: new Date(),
           },
           description: "",
         },
@@ -152,8 +147,8 @@ export default function ResumeForm() {
           name: "",
           description: "",
           duration: {
-            from: new Date().toISOString(),
-            to: new Date().toISOString(),
+            from: new Date(),
+            to: new Date(),
           },
           companyName: "",
         },
@@ -163,8 +158,8 @@ export default function ResumeForm() {
           name: "",
           role: "",
           duration: {
-            from: new Date().toISOString(),
-            to: new Date().toISOString(),
+            from: new Date(),
+            to: new Date(),
           },
           description: "",
         },
@@ -174,8 +169,8 @@ export default function ResumeForm() {
           school: "",
           degree: "",
           graduationDate: {
-            from: new Date().toISOString(),
-            to: new Date().toISOString(),
+            from: new Date(),
+            to: new Date(),
           },
         },
       ],
@@ -184,8 +179,8 @@ export default function ResumeForm() {
           title: "",
           issuingOrganization: "",
           issueDate: {
-            from: new Date().toISOString(),
-            to: new Date().toISOString(),
+            from: new Date(),
+            to: new Date(),
           },
           credentialID: "",
           credentialURL: "",
@@ -445,13 +440,40 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`experiences.${index}.duration.from`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Experience From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -460,13 +482,40 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`experiences.${index}.duration.to`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Experience To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -503,8 +552,8 @@ export default function ResumeForm() {
                     company: "",
                     position: "",
                     duration: {
-                      to: new Date().toISOString(),
-                      from: new Date().toISOString(),
+                      to: new Date(),
+                      from: new Date(),
                     },
                     description: "",
                   })
@@ -552,13 +601,40 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`education.${index}.graduationDate.from`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Graduation Date From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -567,13 +643,40 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`education.${index}.graduationDate.to`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Graduation Date To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -597,8 +700,8 @@ export default function ResumeForm() {
                     school: "",
                     degree: "",
                     graduationDate: {
-                      from: new Date().toISOString(),
-                      to: new Date().toISOString(),
+                      from: new Date(),
+                      to: new Date(),
                     },
                   })
                 }
@@ -645,13 +748,40 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`projects.${index}.duration.from`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Project Duration From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -660,13 +790,40 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`projects.${index}.duration.to`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Project Duration To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -705,8 +862,8 @@ export default function ResumeForm() {
                     name: "",
                     description: "",
                     duration: {
-                      from: new Date().toISOString(),
-                      to: new Date().toISOString(),
+                      from: new Date(),
+                      to: new Date(),
                     },
                     companyName: "",
                   })
@@ -755,20 +912,84 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`activities.${index}.duration.from`}
                     render={({ field }) => (
-                      <DatePicker
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Activities Duration From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
                     name={`activities.${index}.duration.to`}
                     render={({ field }) => (
-                      <DatePicker
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Activities Duration To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
                   <FormField
@@ -802,8 +1023,8 @@ export default function ResumeForm() {
                     name: "",
                     role: "",
                     duration: {
-                      from: new Date().toISOString(),
-                      to: new Date().toISOString(),
+                      from: new Date(),
+                      to: new Date(),
                     },
                     description: "",
                   })
@@ -816,12 +1037,6 @@ export default function ResumeForm() {
           </Card>
 
           {/* Certification */}
-          {/* title: "",
-          issuingOrganization: "",
-          issueDate: new Date().toISOString(),
-          expirationDate: new Date().toISOString(),
-          credentialID: "",
-          credentialURL: "", */}
 
           <Card>
             <CardHeader>
@@ -861,20 +1076,84 @@ export default function ResumeForm() {
                     control={form.control}
                     name={`certifications.${index}.issueDate.from`}
                     render={({ field }) => (
-                      <DatePicker
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Issue Date From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
                     name={`certifications.${index}.issueDate.to`}
                     render={({ field }) => (
-                      <DatePicker
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Issue Date To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
 
@@ -907,7 +1186,7 @@ export default function ResumeForm() {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => removeActivity(index)}
+                      onClick={() => removeCertification(index)}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Remove Activity
@@ -917,14 +1196,15 @@ export default function ResumeForm() {
               ))}
               <Button
                 onClick={() =>
-                  addActivity({
-                    name: "",
-                    role: "",
-                    duration: {
-                      from: new Date().toISOString(),
-                      to: new Date().toISOString(),
+                  addCertification({
+                    title: "",
+                    issuingOrganization: "",
+                    issueDate: {
+                      from: new Date(),
+                      to: new Date(),
                     },
-                    description: "",
+                    credentialID: "",
+                    credentialURL: "",
                   })
                 }
               >
