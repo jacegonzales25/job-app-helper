@@ -38,7 +38,7 @@ export function TRPCProvider(
     trpc.createClient({
       links: [
         httpBatchLink({
-          // transformer: superjson, <-- if you use a data transformer
+          // transformer: superjson, <-- if you us  e a data transformer
           url: getUrl(),
         }),
       ],

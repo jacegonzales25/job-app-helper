@@ -26,12 +26,13 @@ import {
   FormLabel,
   // FormDescription,
 } from "../ui/form";
+import { Separator } from "../ui/separator";
 
 // Define Zod schema for validation
 const resumeSchema = z.object({
   personalInfo: z.object({
-    fullName: z.string().min(2, { message: "Name is required." }),
-    location: z.string().min(2, { message: "Location is required." }),
+    fullName: z.string().min(1, { message: "Name is required." }),
+    location: z.string().min(1, { message: "Location is required." }),
     email: z.string().email({ message: "Invalid email address." }),
     contactNumber: z.string(),
     github: z.string().url().optional(),
@@ -122,6 +123,7 @@ const resumeSchema = z.object({
 
 export default function ResumeForm() {
   const form = useForm({
+    mode: "onSubmit",
     resolver: zodResolver(resumeSchema),
     defaultValues: {
       personalInfo: {
@@ -348,6 +350,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-6">
               {skillFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
+                  {index > 0 && <Separator className="my-6"/>}
                   <FormField
                     control={form.control}
                     name={`skills.${index}.category`}
@@ -401,6 +404,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-6">
               {experienceFields.map((field, index) => (
                 <div key={field.id} className="space-y-4">
+                  {index > 0 && <Separator className="my-6" />}
                   <FormField
                     control={form.control}
                     name={`experiences.${index}.company`}
@@ -420,18 +424,6 @@ export default function ResumeForm() {
                       <FormItem>
                         <FormControl>
                           <Input placeholder="Position/Role" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`experiences.${index}.company`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Company" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -582,6 +574,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-6">
               {educationFields.map((field, index) => (
                 <div key={field.id} className="space-y-4">
+                  {index > 0 && <Separator className="my-6" />}
                   <FormField
                     control={form.control}
                     name={`education.${index}.school`}
@@ -737,6 +730,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-6">
               {projectFields.map((field, index) => (
                 <div key={field.id} className="space-y-4">
+                  {index > 0 && <Separator className="my-6" />}
                   <FormField
                     control={form.control}
                     name={`projects.${index}.name`}
@@ -908,6 +902,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-6">
               {activityFields.map((field, index) => (
                 <div key={field.id} className="space-y-4">
+                  {index > 0 && <Separator className="my-6" />}
                   <FormField
                     control={form.control}
                     name={`activities.${index}.name`}
@@ -1078,6 +1073,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-6">
               {certificationFields.map((field, index) => (
                 <div key={field.id} className="space-y-4">
+                  {index > 0 && <Separator className="my-6" />}
                   <FormField
                     control={form.control}
                     name={`certifications.${index}.title`}
@@ -1131,13 +1127,17 @@ export default function ResumeForm() {
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
                               <Calendar
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() || date < new Date("1900-01-01")
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
                                 }
                                 initialFocus
                               />
@@ -1172,13 +1172,17 @@ export default function ResumeForm() {
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
                               <Calendar
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date < field.value || date < new Date("1900-01-01")
+                                  date < field.value ||
+                                  date < new Date("1900-01-01")
                                 }
                                 initialFocus
                               />
