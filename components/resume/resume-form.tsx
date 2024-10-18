@@ -13,9 +13,9 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormDescription,
   FormMessage,
 } from "../ui/form";
+import { DatePicker } from "../ui/date-picker";
 
 // Define Zod schema for validation
 const resumeSchema = z.object({
@@ -63,8 +63,7 @@ const resumeSchema = z.object({
     z.object({
       school: z.string().min(1, { message: "School is required." }),
       degree: z.string().min(1, { message: "Degree is required." }),
-      major: z.string().min(1, { message: "Major is required." }),
-      graduationDateRange: z.object({
+      graduationDate: z.object({
         from: z.date({
           required_error: "Please indicate the start of your education",
         }),
@@ -96,10 +95,12 @@ const resumeSchema = z.object({
         issuingOrganization: z.string().min(1, {
           message: "Issuing organization is required.",
         }),
-        issueDate: z.date({
-          required_error: "Please indicate the issue date",
+        issueDate: z.object({
+          from: z.date({
+            required_error: "Please indicate the start of your work",
+          }),
+          to: z.date().optional(),
         }),
-        expirationDate: z.date().optional(),
         credentialID: z.string().optional(),
         credentialURL: z.string().url().optional(),
       })
@@ -172,8 +173,7 @@ export default function ResumeForm() {
         {
           school: "",
           degree: "",
-          major: "",
-          graduationDateRange: {
+          graduationDate: {
             from: new Date().toISOString(),
             to: new Date().toISOString(),
           },
@@ -183,8 +183,10 @@ export default function ResumeForm() {
         {
           title: "",
           issuingOrganization: "",
-          issueDate: new Date().toISOString(),
-          expirationDate: new Date().toISOString(),
+          issueDate: {
+            from: new Date().toISOString(),
+            to: new Date().toISOString(),
+          },
           credentialID: "",
           credentialURL: "",
         },
@@ -226,6 +228,15 @@ export default function ResumeForm() {
   } = useFieldArray({
     control: form.control,
     name: "activities",
+  });
+
+  const {
+    fields: educationFields,
+    append: addEducation,
+    remove: removeEducation,
+  } = useFieldArray({
+    control: form.control,
+    name: "education",
   });
 
   const {
@@ -429,9 +440,36 @@ export default function ResumeForm() {
                       </FormItem>
                     )}
                   />
-                  <Input
-                    placeholder="Duration"
-                    {...register(`experiences.${index}.duration`)}
+
+                  <FormField
+                    control={form.control}
+                    name={`experiences.${index}.duration.from`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`experiences.${index}.duration.to`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
 
                   <FormField
@@ -481,18 +519,18 @@ export default function ResumeForm() {
           {/* Education */}
           <Card>
             <CardHeader>
-              <CardTitle>Projects</CardTitle>
+              <CardTitle>Education</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {projectFields.map((field, index) => (
+              {educationFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
                   <FormField
                     control={form.control}
-                    name={`projects.${index}.name`}
+                    name={`education.${index}.school`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input placeholder="Project Name" {...field} />
+                          <Input placeholder="School Name" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -500,11 +538,11 @@ export default function ResumeForm() {
                   />
                   <FormField
                     control={form.control}
-                    name={`projects.${index}.description`}
+                    name={`education.${index}.degree`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Textarea placeholder="Description" {...field} />
+                          <Input placeholder="Degree" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -512,13 +550,28 @@ export default function ResumeForm() {
                   />
                   <FormField
                     control={form.control}
-                    name={`projects.${index}.companyName`}
+                    name={`education.${index}.graduationDate.from`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input
-                            placeholder="Company Name (optional)"
-                            {...field}
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`education.${index}.graduationDate.to`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
                           />
                         </FormControl>
                         <FormMessage />
@@ -530,33 +583,31 @@ export default function ResumeForm() {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => removeProject(index)}
+                      onClick={() => removeEducation(index)}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      Remove Project
+                      Remove Education
                     </Button>
                   )}
                 </div>
               ))}
               <Button
                 onClick={() =>
-                  addProject({
-                    name: "",
-                    description: "",
-                    duration: {
+                  addEducation({
+                    school: "",
+                    degree: "",
+                    graduationDate: {
                       from: new Date().toISOString(),
                       to: new Date().toISOString(),
                     },
-                    companyName: "",
                   })
                 }
               >
                 <PlusCircle className="w-4 h-4 mr-2" />
-                Add Project
+                Add Education
               </Button>
             </CardContent>
           </Card>
-
 
           {/* Projects */}
           <Card>
@@ -585,6 +636,36 @@ export default function ResumeForm() {
                       <FormItem>
                         <FormControl>
                           <Textarea placeholder="Description" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.duration.from`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.duration.to`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -645,7 +726,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-4">
               {activityFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
-                    <FormField
+                  <FormField
                     control={form.control}
                     name={`activities.${index}.name`}
                     render={({ field }) => (
@@ -657,7 +738,7 @@ export default function ResumeForm() {
                       </FormItem>
                     )}
                   />
-                    <FormField
+                  <FormField
                     control={form.control}
                     name={`activities.${index}.role`}
                     render={({ field }) => (
@@ -670,11 +751,26 @@ export default function ResumeForm() {
                     )}
                   />
 
-                  <Input
-                    placeholder="Duration"
-                    {...register(`activities.${index}.duration`)}
+                  <FormField
+                    control={form.control}
+                    name={`activities.${index}.duration.from`}
+                    render={({ field }) => (
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
                   />
-
+                  <FormField
+                    control={form.control}
+                    name={`activities.${index}.duration.to`}
+                    render={({ field }) => (
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name={`activities.${index}.description`}
@@ -687,7 +783,7 @@ export default function ResumeForm() {
                       </FormItem>
                     )}
                   />
-               
+
                   {index > 0 && (
                     <Button
                       variant="destructive"
@@ -715,6 +811,125 @@ export default function ResumeForm() {
               >
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Add Activity
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Certification */}
+          {/* title: "",
+          issuingOrganization: "",
+          issueDate: new Date().toISOString(),
+          expirationDate: new Date().toISOString(),
+          credentialID: "",
+          credentialURL: "", */}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Certifications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {certificationFields.map((field, index) => (
+                <div key={field.id} className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name={`certifications.${index}.title`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Certification Title" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`certifications.${index}.issuingOrganization`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder="Issuing Organization"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`certifications.${index}.issueDate.from`}
+                    render={({ field }) => (
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`certifications.${index}.issueDate.to`}
+                    render={({ field }) => (
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`certifications.${index}.credentialID`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Credential ID" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`certifications.${index}.credentialURL`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Credential URL" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {index > 0 && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeActivity(index)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remove Activity
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                onClick={() =>
+                  addActivity({
+                    name: "",
+                    role: "",
+                    duration: {
+                      from: new Date().toISOString(),
+                      to: new Date().toISOString(),
+                    },
+                    description: "",
+                  })
+                }
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Add Certification
               </Button>
             </CardContent>
           </Card>
