@@ -122,75 +122,76 @@ const resumeSchema = z.object({
 });
 
 export default function ResumeForm() {
-  const form = useForm({
+  const form = useForm<z.infer<typeof resumeSchema>>({
     mode: "onSubmit",
+    shouldUnregister: false,
     resolver: zodResolver(resumeSchema),
-    defaultValues: {
-      personalInfo: {
-        fullName: "",
-        location: "",
-        email: "",
-        contactNumber: "",
-        github: "",
-        linkedIn: "",
-      },
-      skills: [{ category: "", items: "" }],
-      experiences: [
-        {
-          company: "",
-          position: "",
-          duration: {
-            from: new Date(),
-            to: new Date(),
-          },
-          description: "",
-        },
-      ],
-      projects: [
-        {
-          name: "",
-          description: "",
-          duration: {
-            from: new Date(),
-            to: new Date(),
-          },
-          companyName: "",
-        },
-      ],
-      activities: [
-        {
-          name: "",
-          role: "",
-          duration: {
-            from: new Date(),
-            to: new Date(),
-          },
-          description: "",
-        },
-      ],
-      education: [
-        {
-          school: "",
-          degree: "",
-          graduationDate: {
-            from: new Date(),
-            to: new Date(),
-          },
-        },
-      ],
-      certifications: [
-        {
-          title: "",
-          issuingOrganization: "",
-          issueDate: {
-            from: new Date(),
-            to: new Date(),
-          },
-          credentialID: "",
-          credentialURL: "",
-        },
-      ],
-    },
+    // defaultValues: {
+    //   personalInfo: {
+    //     fullName: "",
+    //     location: "",
+    //     email: "",
+    //     contactNumber: "",
+    //     github: "",
+    //     linkedIn: "",
+    //   },
+    //   skills: [{ category: "", items: "" }],
+    //   experiences: [
+    //     {
+    //       company: "",
+    //       position: "",
+    //       duration: {
+    //         from: new Date(),
+    //         to: new Date(),
+    //       },
+    //       description: "",
+    //     },
+    //   ],
+    //   projects: [
+    //     {
+    //       name: "",
+    //       description: "",
+    //       duration: {
+    //         from: new Date(),
+    //         to: new Date(),
+    //       },
+    //       companyName: "",
+    //     },
+    //   ],
+    //   activities: [
+    //     {
+    //       name: "",
+    //       role: "",
+    //       duration: {
+    //         from: new Date(),
+    //         to: new Date(),
+    //       },
+    //       description: "",
+    //     },
+    //   ],
+    //   education: [
+    //     {
+    //       school: "",
+    //       degree: "",
+    //       graduationDate: {
+    //         from: new Date(),
+    //         to: new Date(),
+    //       },
+    //     },
+    //   ],
+    //   certifications: [
+    //     {
+    //       title: "",
+    //       issuingOrganization: "",
+    //       issueDate: {
+    //         from: new Date(),
+    //         to: new Date(),
+    //       },
+    //       credentialID: "",
+    //       credentialURL: "",
+    //     },
+    //   ],
+    // },
   });
 
   const {
@@ -350,7 +351,7 @@ export default function ResumeForm() {
             <CardContent className="space-y-6">
               {skillFields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
-                  {index > 0 && <Separator className="my-6"/>}
+                  {index > 0 && <Separator className="my-6" />}
                   <FormField
                     control={form.control}
                     name={`skills.${index}.category`}
@@ -464,7 +465,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -509,7 +510,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -634,7 +635,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -679,7 +680,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -790,7 +791,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -835,7 +836,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -963,7 +964,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -1008,7 +1009,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -1136,7 +1137,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
@@ -1181,7 +1182,7 @@ export default function ResumeForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date < field.value ||
+                                  date > new Date("2100-01-01") ||
                                   date < new Date("1900-01-01")
                                 }
                                 initialFocus
