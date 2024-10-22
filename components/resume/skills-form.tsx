@@ -47,7 +47,7 @@ export default function SkillsForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card className="p-6">
           <CardHeader>
             <CardTitle>Technical Skills</CardTitle>
