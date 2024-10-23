@@ -19,6 +19,7 @@ import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Calendar } from "../ui/calendar";
 
 const certificationsSchema = z.object({
   certifications: z
