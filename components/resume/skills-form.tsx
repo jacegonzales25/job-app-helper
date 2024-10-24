@@ -17,7 +17,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
 
-const skillsSchema = z.object({
+export const skillsSchema = z.object({
   skills: z.array(
     z.object({
       category: z.string().min(1, { message: "Category is required." }),

@@ -22,7 +22,7 @@ import { format } from "date-fns";
 import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 
-const activitiesSchema = z.object({
+export const activitiesSchema = z.object({
   activities: z
     .array(
       z.object({

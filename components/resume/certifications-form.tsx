@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 
-const certificationsSchema = z.object({
+export const certificationsSchema = z.object({
   certifications: z
     .array(
       z.object({

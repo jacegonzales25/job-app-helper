@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 
-const projectSchema = z.object({
+export const projectSchema = z.object({
   projects: z.array(
     z.object({
       name: z.string().min(1, { message: "Project name is required." }),

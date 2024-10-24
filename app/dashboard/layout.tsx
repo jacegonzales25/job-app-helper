@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../globals.css";
 import Header from "@/components/dashboard/header";
+import { ResumeStoreProvider } from "@/store/providers/resume-store-provider";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -15,8 +16,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AI Resume Builder",
-  description: "Generated professional resumes using AI",
+  title: "Resume Builder",
+  description: "Generate professional ATS-friendly resume",
 };
 
 export default function DashboardLayout({
@@ -30,7 +31,7 @@ export default function DashboardLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        {children}
+        <ResumeStoreProvider>{children}</ResumeStoreProvider>
       </body>
     </html>
   );

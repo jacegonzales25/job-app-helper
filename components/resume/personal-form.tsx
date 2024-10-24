@@ -13,7 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 
-const personalInfoSchema = z.object({
+export const personalInfoSchema = z.object({
   fullName: z.string().min(1, { message: "Name is required." }),
   location: z.string().min(1, { message: "Location is required." }),
   email: z.string().email({ message: "Invalid email address." }),

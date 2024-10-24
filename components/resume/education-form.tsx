@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 
-const educationSchema = z.object({
+export const educationSchema = z.object({
   education: z.array(
     z.object({
       school: z.string().min(1, { message: "School is required." }),

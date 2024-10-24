@@ -22,7 +22,7 @@ import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Textarea } from "../ui/textarea";
 
-const experienceSchema = z.object({
+export const experienceSchema = z.object({
   experiences: z.array(
     z.object({
       company: z.string().min(1, { message: "Company is required." }),
