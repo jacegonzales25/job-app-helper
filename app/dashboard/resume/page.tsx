@@ -2,7 +2,6 @@
 import { SessionProvider } from "next-auth/react";
 import MultiStepForm from "@/components/multi-page/multi-page-form";
 import PersonalForm from "@/components/resume/personal-form";
-// Import missing components
 import EducationForm from "@/components/resume/education-form";
 import ExperienceForm from "@/components/resume/experiences-form";
 import SkillsForm from "@/components/resume/skills-form";

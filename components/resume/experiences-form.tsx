@@ -21,6 +21,10 @@ import { format } from "date-fns";
 import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Textarea } from "../ui/textarea";
+import {
+  useExperienceInfo,
+  useResumeActions,
+} from "@/store/providers/resume-store-provider";
 
 export const experienceSchema = z.object({
   experiences: z.array(
@@ -39,10 +43,15 @@ export const experienceSchema = z.object({
 });
 
 export default function ExperienceForm() {
+  const experiencesData = useExperienceInfo();
+  const { updateExperienceInfo } = useResumeActions();
   const form = useForm<z.infer<typeof experienceSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(experienceSchema),
+    defaultValues: {
+      experiences: experiencesData?.experiences || [],
+    },
   });
 
   const {
@@ -55,7 +64,8 @@ export default function ExperienceForm() {
   });
 
   function onSubmit(values: z.infer<typeof experienceSchema>) {
-    console.log(values);
+    updateExperienceInfo(values);
+    console.log("Form Submitted: ", values);
   }
 
   return (

@@ -12,6 +12,10 @@ import {
 } from "../ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
+import {
+  usePersonalInfo,
+  useResumeActions,
+} from "@/store/providers/resume-store-provider";
 
 export const personalInfoSchema = z.object({
   fullName: z.string().min(1, { message: "Name is required." }),
@@ -23,14 +27,25 @@ export const personalInfoSchema = z.object({
 });
 
 export default function PersonalForm() {
+  const personalInfoData = usePersonalInfo();
+  const { updatePersonalInfo } = useResumeActions();
   const form = useForm<z.infer<typeof personalInfoSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(personalInfoSchema),
+    defaultValues: {
+      fullName: personalInfoData?.fullName,
+      location: personalInfoData?.location,
+      email: personalInfoData?.email,
+      contactNumber: personalInfoData?.contactNumber,
+      github: personalInfoData?.github,
+      linkedIn: personalInfoData?.linkedIn,
+    },
   });
 
   function onSubmit(values: z.infer<typeof personalInfoSchema>) {
-    console.log(values);
+    updatePersonalInfo(values);
+    console.log("Form Submitted: ", values);
   }
 
   return (

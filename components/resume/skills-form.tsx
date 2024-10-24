@@ -16,6 +16,10 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
+import {
+  useResumeActions,
+  useSkillsInfo,
+} from "@/store/providers/resume-store-provider";
 
 export const skillsSchema = z.object({
   skills: z.array(
@@ -26,10 +30,15 @@ export const skillsSchema = z.object({
   ),
 });
 export default function SkillsForm() {
+  const skillsData = useSkillsInfo();
+  const { updateSkillsInfo } = useResumeActions();
   const form = useForm<z.infer<typeof skillsSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(skillsSchema),
+    defaultValues: {
+      skills: skillsData?.skills || [],
+    },
   });
 
   const {
@@ -42,7 +51,8 @@ export default function SkillsForm() {
   });
 
   function onSubmit(values: z.infer<typeof skillsSchema>) {
-    console.log(values);
+    updateSkillsInfo(values);
+    console.log("Form Submitted: ", values);
   }
 
   return (

@@ -20,6 +20,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
+import {
+  useCertificationsInfo,
+  useResumeActions,
+} from "@/store/providers/resume-store-provider";
 
 export const certificationsSchema = z.object({
   certifications: z
@@ -45,10 +49,15 @@ export const certificationsSchema = z.object({
 });
 
 export default function CertificationsForm() {
+  const certificationsData = useCertificationsInfo();
+  const { updateCertificationsInfo } = useResumeActions();
   const form = useForm<z.infer<typeof certificationsSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(certificationsSchema),
+    defaultValues: {
+      certifications: certificationsData?.certifications || [],
+    },
   });
 
   const {
@@ -61,7 +70,8 @@ export default function CertificationsForm() {
   });
 
   function onSubmit(values: z.infer<typeof certificationsSchema>) {
-    console.log(values);
+    updateCertificationsInfo(values)
+    console.log("Form Submitted: ", values);
   }
 
   return (
