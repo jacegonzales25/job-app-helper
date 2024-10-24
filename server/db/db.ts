@@ -2,7 +2,7 @@ import "@/drizzle/envConfig";
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import * as schema from "./schema";
-import { InferModel } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export const db = drizzle(sql, { schema });
 
@@ -81,8 +81,9 @@ type InsertUser = typeof schema.users.$inferInsert;
 type InsertResume = typeof schema.resumes.$inferInsert;
 type InsertPersonalInfo = typeof schema.personalInfo.$inferInsert;
 type InsertSkills = typeof schema.skills.$inferInsert;
-type InsertExperieces = typeof schema.workExperiences.$inferInsert;
+type InsertExperiences = typeof schema.workExperiences.$inferInsert;
 type InsertProjects = typeof schema.projects.$inferInsert;
+type InsertEducation = typeof schema.education.$inferInsert;
 type InsertActivities = typeof schema.activities.$inferInsert;
 type InsertCertifications = typeof schema.certifications.$inferInsert;
 
@@ -107,13 +108,17 @@ export const insertSkills = async (skills: InsertSkills) => {
 };
 
 // Insert Work Experience
-export const insertExperience = async (experiences: InsertExperieces) => {
+export const insertExperience = async (experiences: InsertExperiences) => {
   return db.insert(schema.workExperiences).values(experiences);
 };
 
 // Insert Project
 export const insertProject = async (projects: InsertProjects) => {
   return db.insert(schema.projects).values(projects);
+};
+
+export const insertEducation = async (education: InsertEducation) => {
+  return db.insert(schema.education).values(education);
 };
 
 // Insert Activity
@@ -129,200 +134,156 @@ export const insertCertification = async (
 };
 
 // Update User Email or Password
-export const updateUser = async (
-  userId: number,
-  email?: string,
-  passwordHash?: string
-) => {
+export const updateUser = async (user: InsertUser) => {
   return db
-    .update(users)
+    .update(schema.users)
     .set({
-      email: email || undefined,
-      passwordHash: passwordHash || undefined,
+      passwordHash: user.passwordHash ?? undefined,
+      email: user.email ?? undefined, // Optional email update
     })
-    .where((users, { eq }) => eq(users.id, userId))
+    .where(eq(schema.users.id, user.id!)) // Assuming user id is required for updates
     .returning();
 };
 
 // Update Resume
-export const updateResume = async (resumeId: number, isDraft?: boolean) => {
+export const updateResume = async (resume: InsertResume) => {
   return db
-    .update(resumes)
+    .update(schema.resumes)
     .set({
-      isDraft: isDraft || undefined,
+      isDraft: resume.isDraft ?? undefined,
     })
-    .where((resumes, { eq }) => eq(resumes.id, resumeId))
+    .where(eq(schema.resumes.id, resume.id!)) // Assuming id is required for updates
     .returning();
 };
 
 // Update Work Experience
-export const updateWorkExperience = async (
-  experienceId: number,
-  company?: string,
-  position?: string,
-  from?: Date,
-  to?: Date,
-  description?: string
-) => {
+export const updateWorkExperience = async (experience: InsertExperiences) => {
   return db
-    .update(workExperiences)
+    .update(schema.workExperiences)
     .set({
-      company: company || undefined,
-      position: position || undefined,
-      from: from || undefined,
-      to: to || undefined,
-      description: description || undefined,
+      company: experience.company ?? undefined,
+      position: experience.position ?? undefined,
+      from: experience.from ?? undefined,
+      to: experience.to ?? undefined,
+      description: experience.description ?? undefined,
     })
-    .where((workExperiences, { eq }) => eq(workExperiences.id, experienceId))
+    .where(eq(schema.workExperiences.id, experience.id!)) // Assuming id is required for updates
     .returning();
 };
 
 // Update Project
-export const updateProject = async (
-  projectId: number,
-  name?: string,
-  description?: string,
-  companyName?: string,
-  from?: Date,
-  to?: Date
-) => {
+export const updateProject = async (project: InsertProjects) => {
   return db
-    .update(projects)
+    .update(schema.projects)
     .set({
-      name: name || undefined,
-      description: description || undefined,
-      companyName: companyName || undefined,
-      from: from || undefined,
-      to: to || undefined,
+      name: project.name ?? undefined,
+      description: project.description ?? undefined,
+      companyName: project.companyName ?? undefined,
+      from: project.from ?? undefined,
+      to: project.to ?? undefined,
     })
-    .where((projects, { eq }) => eq(projects.id, projectId))
-    .returning();
-};
-
-// Update Skills
-export const updateSkills = async (
-  skillId: number,
-  category?: string,
-  items?: string
-) => {
-  return db
-    .update(skills)
-    .set({
-      category: category || undefined,
-      items: items || undefined,
-    })
-    .where((skills, { eq }) => eq(skills.id, skillId))
+    .where(eq(schema.projects.id, project.id!)) // Assuming id is required for updates
     .returning();
 };
 
 // Update Activity
-export const updateActivity = async (
-  activityId: number,
-  name?: string,
-  role?: string,
-  duration?: string,
-  description?: string
-) => {
+export const updateActivity = async (activity: InsertActivities) => {
   return db
-    .update(activities)
+    .update(schema.activities)
     .set({
-      name: name || undefined,
-      role: role || undefined,
-      duration: duration || undefined,
-      description: description || undefined,
+      name: activity.name ?? undefined,
+      role: activity.role ?? undefined,
+      duration: activity.duration ?? undefined,
+      description: activity.description ?? undefined,
     })
-    .where((activities, { eq }) => eq(activities.id, activityId))
+    .where(eq(schema.activities.id, activity.id!)) // Assuming id is required for updates
     .returning();
 };
 
 // Update Education
-export const updateEducation = async (
-  educationId: number,
-  school?: string,
-  degree?: string,
-  from?: Date,
-  to?: Date
-) => {
+export const updateEducation = async (education: InsertEducation) => {
   return db
-    .update(education)
+    .update(schema.education)
     .set({
-      school: school || undefined,
-      degree: degree || undefined,
-      from: from || undefined,
-      to: to || undefined,
+      school: education.school ?? undefined,
+      degree: education.degree ?? undefined,
+      from: education.from ?? undefined,
+      to: education.to ?? undefined,
     })
-    .where((education, { eq }) => eq(education.id, educationId))
+    .where(eq(schema.education.id, education.id!)) // Assuming id is required for updates
     .returning();
 };
 
 // Update Certification
 export const updateCertification = async (
-  certificationId: number,
-  title?: string,
-  issuingOrganization?: string,
-  from?: Date,
-  to?: Date,
-  credentialID?: string,
-  credentialURL?: string
+  certification: InsertCertifications
 ) => {
   return db
-    .update(certifications)
+    .update(schema.certifications)
     .set({
-      title: title || undefined,
-      issuingOrganization: issuingOrganization || undefined,
-      from: from || undefined,
-      to: to || undefined,
-      credentialID: credentialID || undefined,
-      credentialURL: credentialURL || undefined,
+      title: certification.title ?? undefined,
+      issuingOrganization: certification.issuingOrganization ?? undefined,
+      from: certification.from ?? undefined,
+      to: certification.to ?? undefined,
+      credentialID: certification.credentialID ?? undefined,
+      credentialURL: certification.credentialURL ?? undefined,
     })
-    .where((certifications, { eq }) => eq(certifications.id, certificationId))
+    .where(eq(schema.certifications.id, certification.id!)) // Assuming id is required for updates
     .returning();
+};
+
+// Delete Resume
+export const deleteResume = async (resumeId: number) => {
+  return db
+    .delete(schema.resumes)
+    .where(eq(schema.resumes.id, resumeId))
+    .returning(); // Return deleted resume data if needed
 };
 
 // Delete Work Experience
 export const deleteWorkExperience = async (experienceId: number) => {
   return db
-    .delete(workExperiences)
-    .where((workExperiences, { eq }) => eq(workExperiences.id, experienceId))
-    .returning();
+    .delete(schema.workExperiences)
+    .where(eq(schema.workExperiences.id, experienceId))
+    .returning(); // Return deleted work experience data if needed
 };
 
 // Delete Project
 export const deleteProject = async (projectId: number) => {
   return db
-    .delete(projects)
-    .where((projects, { eq }) => eq(projects.id, projectId))
-    .returning();
+    .delete(schema.projects)
+    .where(eq(schema.projects.id, projectId))
+    .returning(); // Return deleted project data if needed
 };
 
 // Delete Skill
 export const deleteSkill = async (skillId: number) => {
   return db
-    .delete(skills)
-    .where((skills, { eq }) => eq(skills.id, skillId))
-    .returning();
+    .delete(schema.skills)
+    .where(eq(schema.skills.id, skillId))
+    .returning(); // Return deleted skill data if needed
 };
 
 // Delete Activity
 export const deleteActivity = async (activityId: number) => {
   return db
-    .delete(activities)
-    .where((activities, { eq }) => eq(activities.id, activityId))
-    .returning();
+    .delete(schema.activities)
+    .where(eq(schema.activities.id, activityId))
+    .returning(); // Return deleted activity data if needed
 };
 
 // Delete Education
 export const deleteEducation = async (educationId: number) => {
   return db
-    .delete(education)
-    .where((education, { eq }) => eq(education.id, educationId))
-    .returning();
+    .delete(schema.education)
+    .where(eq(schema.education.id, educationId))
+    .returning(); // Return deleted education data if needed
 };
 
 // Delete Certification
 export const deleteCertification = async (certificationId: number) => {
   return db
-    .delete(certifications)
-    .where((certifications, { eq }) => eq(certifications.id, certificationId))
-    .returning();
+    .delete(schema.certifications)
+    .where(eq(schema.certifications.id, certificationId))
+    .returning(); // Return deleted certification data if needed
 };
