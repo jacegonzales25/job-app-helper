@@ -8,17 +8,14 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
 export const users = pgTable(
   "users",
   {
     id: serial("id").primaryKey(),
-    email: text("email").notNull().unique(),
-    fullName: text("full_name"),
-    location: text("location"),
-    contactNumber: text("contact_number"),
-    githubLink: text("github_link"),
-    linkedIn: text("linkedin"),
-    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    email: text("email").notNull().unique(), // User's email for login
+    passwordHash: text("password_hash").notNull(), // Encrypted password for login
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (users) => {
     return {
@@ -26,29 +23,43 @@ export const users = pgTable(
     };
   }
 );
-
 export const resumes = pgTable("resumes", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
-  content: text("content"),
   isDraft: boolean("isDraft").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const personalInfo = pgTable("personal_info", {
+  id: serial("id").primaryKey(),
+  resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
+  fullName: text("full_name").notNull(),
+  location: text("location").notNull(),
+  email: text("email").notNull(),
+  contactNumber: text("contact_number"),
+  githubLink: text("github_link").default(""),
+  linkedIn: text("linkedin").default(""),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export const workExperiences = pgTable("work_experiences", {
   id: serial("id").primaryKey(),
-  resumeId: integer("resume_id").references(() => resumes.id),
-  company: text("company"),
-  position: text("position"),
-  duration: text("duration"),
+  resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
+  company: text("company").notNull(),
+  position: text("position").notNull(),
+  from: timestamp("from").notNull(), // Start date of work experience
+  to: timestamp("to").default(new Date()), // End date, optional
   description: text("description"),
 });
 
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
-  resumeId: integer("resume_id").references(() => resumes.id),
-  name: text("name"),
-  description: text("description"),
+  resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  companyName: text("company_name").default(""), // Optional field
+  from: timestamp("from").notNull(), // Start date of the project
+  to: timestamp("to").default(new Date()), // End date, optional
 });
 
 export const activities = pgTable("activities", {
@@ -62,9 +73,29 @@ export const activities = pgTable("activities", {
 
 export const skills = pgTable("skills", {
   id: serial("id").primaryKey(),
-  resumeId: integer("resume_id").references(() => resumes.id),
-  category: text("category"),
-  items: text("items"),
+  resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
+  category: text("category").notNull(),
+  items: text("items").notNull(), // Could store skills as comma-separated or serialized JSON string
+});
+
+export const education = pgTable("education", {
+  id: serial("id").primaryKey(),
+  resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
+  school: text("school").notNull(),
+  degree: text("degree").notNull(),
+  from: timestamp("from").notNull(), // Start of education
+  to: timestamp("to").notNull(), // Graduation date
+});
+
+export const certifications = pgTable("certifications", {
+  id: serial("id").primaryKey(),
+  resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
+  title: text("title").notNull(),
+  issuingOrganization: text("issuing_organization").notNull(),
+  from: timestamp("from").notNull(), // Issue date
+  to: timestamp("to").default(new Date()), // Optional expiry date
+  credentialID: text("credential_id").default(""), // Optional credential ID
+  credentialURL: text("credential_url").default(""), // Optional credential URL
 });
 
 // Photos for future AI generation

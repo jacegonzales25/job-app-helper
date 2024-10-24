@@ -21,7 +21,6 @@ export const getUserResume = async (userId: string) => {
   });
 };
 
-
 export const getUserResumes = async (userId: string) => {
   const userIdAsNumber = Number(userId); // Convert string to number
   if (isNaN(userIdAsNumber)) {
@@ -32,12 +31,14 @@ export const getUserResumes = async (userId: string) => {
   });
 };
 
-
 export const getResumeDetails = async (resumeId: number) => {
   const resume = await db.query.resumes.findFirst({
     where: (resumes, { eq }) => eq(resumes.id, resumeId),
   });
 
+  const personalInfo = await db.query.personalInfo.findMany({
+    where: (personalInfo, { eq }) => eq(personalInfo.resumeId, resumeId),
+  });
   const workExperiences = await db.query.workExperiences.findMany({
     where: (workExperiences, { eq }) => eq(workExperiences.resumeId, resumeId),
   });
@@ -54,11 +55,22 @@ export const getResumeDetails = async (resumeId: number) => {
     where: (skills, { eq }) => eq(skills.resumeId, resumeId),
   });
 
+  const certifications = await db.query.certifications.findMany({
+    where: (certifications, { eq }) => eq(certifications.resumeId, resumeId),
+  });
+
+  const education = await db.query.education.findMany({
+    where: (education, { eq }) => eq(education.resumeId, resumeId),
+  });
+
   return {
     resume,
     workExperiences,
     projects,
     activities,
     skills,
+    certifications,
+    education,
+    personalInfo,
   };
 };
