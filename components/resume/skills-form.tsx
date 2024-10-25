@@ -25,7 +25,9 @@ export const skillsSchema = z.object({
   skills: z.array(
     z.object({
       category: z.string().min(1, { message: "Category is required." }),
-      items: z.string().min(1, { message: "At least one skill is required." }),
+      items: z
+        .array(z.string())
+        .min(1, { message: "At least one skill is required." }),
     })
   ),
 });
@@ -104,7 +106,7 @@ export default function SkillsForm() {
                 )}
               </div>
             ))}
-            <Button onClick={() => addSkill({ category: "", items: "" })}>
+            <Button onClick={() => addSkill({ category: "", items: [] })}>
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Skill Category
             </Button>

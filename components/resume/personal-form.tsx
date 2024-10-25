@@ -21,7 +21,7 @@ export const personalInfoSchema = z.object({
   fullName: z.string().min(1, { message: "Name is required." }),
   location: z.string().min(1, { message: "Location is required." }),
   email: z.string().email({ message: "Invalid email address." }),
-  contactNumber: z.string(),
+  contactNumber: z.string().min(1, { message: "Number is required" }),
   github: z.string().url().optional(),
   linkedIn: z.string().url().optional(),
 });

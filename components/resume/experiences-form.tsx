@@ -31,12 +31,10 @@ export const experienceSchema = z.object({
     z.object({
       company: z.string().min(1, { message: "Company is required." }),
       position: z.string().min(1, { message: "Position is required." }),
-      duration: z.object({
-        from: z.date({
-          required_error: "Please indicate the start of your work",
-        }),
-        to: z.date().optional(),
+      from: z.date({
+        required_error: "Please indicate the start of your work",
       }),
+      to: z.date().optional(),
       description: z.string(),
     })
   ),
@@ -105,7 +103,7 @@ export default function ExperienceForm() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name={`experiences.${index}.duration.from`}
+                      name={`experiences.${index}.from`}
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel>From</FormLabel>
@@ -150,7 +148,7 @@ export default function ExperienceForm() {
                     />
                     <FormField
                       control={form.control}
-                      name={`experiences.${index}.duration.to`}
+                      name={`experiences.${index}.to`}
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel>To</FormLabel>
@@ -225,10 +223,9 @@ export default function ExperienceForm() {
                   addExperience({
                     company: "",
                     position: "",
-                    duration: {
-                      to: new Date(),
-                      from: new Date(),
-                    },
+                    to: new Date(),
+                    from: new Date(),
+
                     description: "",
                   })
                 }

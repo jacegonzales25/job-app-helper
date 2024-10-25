@@ -32,12 +32,10 @@ export const activitiesSchema = z.object({
       z.object({
         name: z.string().min(1, { message: "Activity name is required." }),
         role: z.string().min(1, { message: "Role is required." }),
-        duration: z.object({
-          from: z.date({
-            required_error: "Please indicate the start of your work",
-          }),
-          to: z.date().optional(),
+        from: z.date({
+          required_error: "Please indicate the start of your work",
         }),
+        to: z.date().optional(),
         description: z.string(),
       })
     )
@@ -108,7 +106,7 @@ export default function ActivitiesForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name={`activities.${index}.duration.from`}
+                  name={`activities.${index}.from`}
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>From</FormLabel>
@@ -150,7 +148,7 @@ export default function ActivitiesForm() {
                 />
                 <FormField
                   control={form.control}
-                  name={`activities.${index}.duration.to`}
+                  name={`activities.${index}.to`}
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>To</FormLabel>
@@ -221,10 +219,9 @@ export default function ActivitiesForm() {
               addActivity({
                 name: "",
                 role: "",
-                duration: {
-                  from: new Date(),
-                  to: new Date(),
-                },
+
+                from: new Date(),
+                to: new Date(),
                 description: "",
               })
             }

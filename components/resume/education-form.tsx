@@ -30,12 +30,10 @@ export const educationSchema = z.object({
     z.object({
       school: z.string().min(1, { message: "School is required." }),
       degree: z.string().min(1, { message: "Degree is required." }),
-      graduationDate: z.object({
-        from: z.date({
-          required_error: "Please indicate the start of your education",
-        }),
-        to: z.date({ required_error: "Please indicate the graduation date" }),
+      from: z.date({
+        required_error: "Please indicate the start of your education",
       }),
+      to: z.date({ required_error: "Please indicate the graduation date" }),
     })
   ),
 });
@@ -104,7 +102,7 @@ export default function EducationForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name={`education.${index}.graduationDate.from`}
+                    name={`education.${index}.from`}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>From</FormLabel>
@@ -146,7 +144,7 @@ export default function EducationForm() {
                   />
                   <FormField
                     control={form.control}
-                    name={`education.${index}.graduationDate.to`}
+                    name={`education.${index}.to`}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>To</FormLabel>
@@ -205,10 +203,8 @@ export default function EducationForm() {
                 addEducation({
                   school: "",
                   degree: "",
-                  graduationDate: {
-                    from: new Date(),
-                    to: new Date(),
-                  },
+                  from: new Date(),
+                  to: new Date(),
                 })
               }
             >

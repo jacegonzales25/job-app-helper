@@ -93,19 +93,70 @@ export const useResumeStore = create<ResumeStore>((set) => ({
     try {
       set({ isLoading: true, error: null });
       const details = await db.getResumeDetails(resumeId);
-      
+
       set({
         currentResumeId: resumeId,
-        personalInfo: details.personalInfo[0] || null,
-        educationInfo: details.education[0] || null,
-        experienceInfo: details.workExperiences[0] || null,
-        skillsInfo: details.skills[0] || null,
-        activitiesInfo: details.activities[0] || null,
+        personalInfo: {
+          fullName: details.personalInfo[0].fullName,
+          location: details.personalInfo[0].location,
+          email: details.personalInfo[0].email,
+          contactNumber: details.personalInfo[0].contactNumber ?? "",
+          github: details.personalInfo[0].github || undefined,
+          linkedIn: details.personalInfo[0].linkedIn || undefined,
+        },
+        educationInfo: {
+          education: [
+            {
+              school: details.education[0].school,
+              degree: details.education[0].degree,
+              from: details.education[0].from,
+              to: details.education[0].to,
+            },
+          ],
+        },
+        experienceInfo: {
+          experiences: [
+            {
+              company: details.workExperiences[0].company,
+              position: details.workExperiences[0].position,
+              from: details.workExperiences[0].from,
+              to: details.workExperiences[0].to || undefined,
+              description: details.workExperiences[0].description || "",
+            },
+          ],
+        },
+        skillsInfo: {
+          skills: [
+            {
+              category: details.skills[0].category,
+              items: details.skills[0].items.split(",").map(skill => skill.trim()), // Split and trim each skill  
+            
+            }
+          ]
+        }
+        activitiesInfo: {
+          activities: [
+            {
+              name: details.activities[0].name,
+              role: details.activities[0].role,
+              duration: {
+                from: details.activities[0].from,
+                to: details.activities[0].to || undefined,
+              },
+              description: details.activities[0].description,
+            }
+          ]
+        }
         projectsInfo: details.projects[0] || null,
         certificationsInfo: details.certifications[0] || null,
       });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to fetch resume details' });
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch resume details",
+      });
     } finally {
       set({ isLoading: false });
     }
@@ -114,12 +165,20 @@ export const useResumeStore = create<ResumeStore>((set) => ({
   createNewResume: async (userId: string) => {
     try {
       set({ isLoading: true, error: null });
-      const result = await db.insertResume({ userId: Number(userId), isDraft: true });
+      const result = await db.insertResume({
+        userId: Number(userId),
+        isDraft: true,
+      });
       const resumeId = result[0].id;
       set({ currentResumeId: resumeId });
       return resumeId;
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to create new resume' });
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to create new resume",
+      });
     } finally {
       set({ isLoading: false });
     }

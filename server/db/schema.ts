@@ -37,7 +37,7 @@ export const personalInfo = pgTable("personal_info", {
   location: text("location").notNull(),
   email: text("email").notNull(),
   contactNumber: text("contact_number"),
-  githubLink: text("github_link").default(""),
+  github: text("github").default(""),
   linkedIn: text("linkedin").default(""),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -67,7 +67,8 @@ export const activities = pgTable("activities", {
   resumeId: integer("resume_id").references(() => resumes.id),
   name: text("name"),
   role: text("role"),
-  duration: text("duration"),
+  from: timestamp("from").notNull(), // Start date of the project
+  to: timestamp("to").default(new Date()), // End date, optional
   description: text("description"),
 });
 
