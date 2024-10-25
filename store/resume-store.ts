@@ -109,7 +109,7 @@ export const useResumeStore = create<ResumeStore>((set) => ({
             {
               school: details.education[0].school,
               degree: details.education[0].degree,
-              from: details.education[0].from,
+              from: details.education[0].from || undefined,
               to: details.education[0].to,
             },
           ],

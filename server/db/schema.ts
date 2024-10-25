@@ -6,6 +6,7 @@ import {
   uniqueIndex,
   integer,
   boolean,
+  date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -47,8 +48,8 @@ export const workExperiences = pgTable("work_experiences", {
   resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
   company: text("company").notNull(),
   position: text("position").notNull(),
-  from: timestamp("from").notNull(), // Start date of work experience
-  to: timestamp("to").default(new Date()), // End date, optional
+  from: date("from").notNull(), // Changed to date
+  to: date("to"), // Changed to date
   description: text("description"),
 });
 
@@ -58,8 +59,8 @@ export const projects = pgTable("projects", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   companyName: text("company_name").default(""), // Optional field
-  from: timestamp("from").notNull(), // Start date of the project
-  to: timestamp("to").default(new Date()), // End date, optional
+  from: date("from").notNull(),  // Changed to date
+  to: date("to"),                // Changed to date
 });
 
 export const activities = pgTable("activities", {
@@ -67,8 +68,8 @@ export const activities = pgTable("activities", {
   resumeId: integer("resume_id").references(() => resumes.id),
   name: text("name"),
   role: text("role"),
-  from: timestamp("from").notNull(), // Start date of the project
-  to: timestamp("to").default(new Date()), // End date, optional
+  from: date("from").notNull(),  // Changed to date
+  to: date("to"),                // Changed to date
   description: text("description"),
 });
 
@@ -84,8 +85,8 @@ export const education = pgTable("education", {
   resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
   school: text("school").notNull(),
   degree: text("degree").notNull(),
-  from: timestamp("from").notNull(), // Start of education
-  to: timestamp("to").notNull(), // Graduation date
+  from: date("from").notNull(),  // Changed to date
+  to: date("to").notNull(),                // Changed to date
 });
 
 export const certifications = pgTable("certifications", {
@@ -93,8 +94,8 @@ export const certifications = pgTable("certifications", {
   resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
   title: text("title").notNull(),
   issuingOrganization: text("issuing_organization").notNull(),
-  from: timestamp("from").notNull(), // Issue date
-  to: timestamp("to").default(new Date()), // Optional expiry date
+  from: date("from").notNull(),  // Changed to date
+  to: date("to"),                // Changed to date
   credentialID: text("credential_id").default(""), // Optional credential ID
   credentialURL: text("credential_url").default(""), // Optional credential URL
 });

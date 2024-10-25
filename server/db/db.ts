@@ -193,7 +193,8 @@ export const updateActivity = async (activity: InsertActivities) => {
     .set({
       name: activity.name ?? undefined,
       role: activity.role ?? undefined,
-      duration: activity.duration ?? undefined,
+      from: activity.from ?? undefined,
+      to: activity.to ?? undefined,
       description: activity.description ?? undefined,
     })
     .where(eq(schema.activities.id, activity.id!)) // Assuming id is required for updates

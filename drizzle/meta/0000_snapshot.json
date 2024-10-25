@@ -1,5 +1,5 @@
 {
-  "id": "de570a90-c53f-445e-b5fa-964bc6f9982e",
+  "id": "f7c72da5-4094-456a-80ad-a2ff0ec6fa62",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -34,16 +34,15 @@
         },
         "from": {
           "name": "from",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
         "to": {
           "name": "to",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'2024-10-25 08:52:20.423'"
+          "notNull": false
         },
         "description": {
           "name": "description",
@@ -101,16 +100,15 @@
         },
         "from": {
           "name": "from",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
         "to": {
           "name": "to",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'2024-10-25 08:52:20.423'"
+          "notNull": false
         },
         "credential_id": {
           "name": "credential_id",
@@ -176,13 +174,13 @@
         },
         "from": {
           "name": "from",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
         "to": {
           "name": "to",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         }
@@ -359,16 +357,15 @@
         },
         "from": {
           "name": "from",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
         "to": {
           "name": "to",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'2024-10-25 08:52:20.422'"
+          "notNull": false
         }
       },
       "indexes": {},
@@ -577,16 +574,15 @@
         },
         "from": {
           "name": "from",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
         "to": {
           "name": "to",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'2024-10-25 08:52:20.422'"
+          "notNull": false
         },
         "description": {
           "name": "description",
