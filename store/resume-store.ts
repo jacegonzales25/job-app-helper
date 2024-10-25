@@ -8,7 +8,8 @@ import { personalInfoSchema } from "@/components/resume/personal-form";
 import { projectSchema } from "@/components/resume/projects-form";
 import { skillsSchema } from "@/components/resume/skills-form";
 import { z } from "zod";
-import { createStore } from "zustand/vanilla";
+import { create } from "zustand";
+import * as db from "@/server/db/db";
 
 // Type definitions from schemas
 type PersonalInfo = z.infer<typeof personalInfoSchema>;
@@ -28,18 +29,40 @@ export interface ResumeState {
   activitiesInfo: ActivitiesInfo | null;
   projectsInfo: ProjectsInfo | null;
   certificationsInfo: CertificationsInfo | null;
+  isLoading: boolean;
+  error: string | null;
+  currentResumeId: number | null;
 }
 
 // Actions interface
 export interface ResumeActions {
-  updatePersonalInfo: (info: PersonalInfo) => void;
-  updateEducationInfo: (info: EducationInfo) => void;
-  updateExperienceInfo: (info: ExperienceInfo) => void;
-  updateSkillsInfo: (info: SkillsInfo) => void;
-  updateActivitiesInfo: (info: ActivitiesInfo) => void;
-  updateProjectsInfo: (info: ProjectsInfo) => void;
-  updateCertificationsInfo: (info: CertificationsInfo) => void;
+  // Fetch operations
+  fetchResumeDetails: (resumeId: number) => Promise<void>;
+
+  // Create operations
+  createNewResume: (userId: string) => Promise<void>;
+
+  // Update operations
+  updatePersonalInfo: (info: PersonalInfo) => Promise<void>;
+  updateEducationInfo: (info: EducationInfo) => Promise<void>;
+  updateExperienceInfo: (info: ExperienceInfo) => Promise<void>;
+  updateSkillsInfo: (info: SkillsInfo) => Promise<void>;
+  updateActivitiesInfo: (info: ActivitiesInfo) => Promise<void>;
+  updateProjectsInfo: (info: ProjectsInfo) => Promise<void>;
+  updateCertificationsInfo: (info: CertificationsInfo) => Promise<void>;
+
+  // Delete operations
+  deleteEducation: (educationId: number) => Promise<void>;
+  deleteExperience: (experienceId: number) => Promise<void>;
+  deleteProject: (projectId: number) => Promise<void>;
+  deleteSkill: (skillId: number) => Promise<void>;
+  deleteActivity: (activityId: number) => Promise<void>;
+  deleteCertification: (certificationId: number) => Promise<void>;
+
+  // Utility actions
   clearFormData: () => void;
+  setError: (error: string | null) => void;
+  setLoading: (loading: boolean) => void;
 }
 
 // Combined store type
@@ -54,33 +77,320 @@ export const defaultInitState: ResumeState = {
   activitiesInfo: null,
   projectsInfo: null,
   certificationsInfo: null,
+  isLoading: false,
+  error: null,
+  currentResumeId: null,
 };
 
 // Create the store with proper type annotations
-export const createResumeStore = () =>
-  createStore<ResumeStore>((set) => ({
-    ...defaultInitState,
+export const useResumeStore = create<ResumeStore>((set) => ({
+  ...defaultInitState,
 
-    updatePersonalInfo: (info: PersonalInfo) =>
-      set((state) => ({ ...state, personalInfo: info })),
+  setError: (error) => set({ error }),
+  setLoading: (isLoading) => set({ isLoading }),
 
-    updateEducationInfo: (info: EducationInfo) =>
-      set((state) => ({ ...state, educationInfo: info })),
+  fetchResumeDetails: async (resumeId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      const details = await db.getResumeDetails(resumeId);
+      
+      set({
+        currentResumeId: resumeId,
+        personalInfo: details.personalInfo[0] || null,
+        educationInfo: details.education[0] || null,
+        experienceInfo: details.workExperiences[0] || null,
+        skillsInfo: details.skills[0] || null,
+        activitiesInfo: details.activities[0] || null,
+        projectsInfo: details.projects[0] || null,
+        certificationsInfo: details.certifications[0] || null,
+      });
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Failed to fetch resume details' });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-    updateExperienceInfo: (info: ExperienceInfo) =>
-      set((state) => ({ ...state, experienceInfo: info })),
+  createNewResume: async (userId: string) => {
+    try {
+      set({ isLoading: true, error: null });
+      const result = await db.insertResume({ userId: Number(userId), isDraft: true });
+      const resumeId = result[0].id;
+      set({ currentResumeId: resumeId });
+      return resumeId;
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Failed to create new resume' });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-    updateSkillsInfo: (info: SkillsInfo) =>
-      set((state) => ({ ...state, skillsInfo: info })),
+  updatePersonalInfo: async (info: PersonalInfo) => {
+    try {
+      set({ isLoading: true, error: null });
+      const currentResumeId = useResumeStore.getState().currentResumeId;
+      if (!currentResumeId) throw new Error("No resume selected");
 
-    updateActivitiesInfo: (info: ActivitiesInfo) =>
-      set((state) => ({ ...state, activitiesInfo: info })),
+      await db.insertPersonalInfo({
+        ...info,
+        resumeId: currentResumeId,
+      });
 
-    updateProjectsInfo: (info: ProjectsInfo) =>
-      set((state) => ({ ...state, projectsInfo: info })),
+      set({ personalInfo: info });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update personal info",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-    updateCertificationsInfo: (info: CertificationsInfo) =>
-      set((state) => ({ ...state, certificationsInfo: info })),
+  updateEducationInfo: async (info: EducationInfo) => {
+    try {
+      set({ isLoading: true, error: null });
+      const currentResumeId = useResumeStore.getState().currentResumeId;
+      if (!currentResumeId) throw new Error("No resume selected");
 
-    clearFormData: () => set(defaultInitState),
-  }));
+      await db.insertEducation({
+        ...info,
+        resumeId: currentResumeId,
+      });
+
+      set({ educationInfo: info });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update education info",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateExperienceInfo: async (info: ExperienceInfo) => {
+    try {
+      set({ isLoading: true, error: null });
+      const currentResumeId = useResumeStore.getState().currentResumeId;
+      if (!currentResumeId) throw new Error("No resume selected");
+
+      await db.insertExperience({
+        ...info,
+        resumeId: currentResumeId,
+      });
+
+      set({ experienceInfo: info });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update experience info",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateSkillsInfo: async (info: SkillsInfo) => {
+    try {
+      set({ isLoading: true, error: null });
+      const currentResumeId = useResumeStore.getState().currentResumeId;
+      if (!currentResumeId) throw new Error("No resume selected");
+
+      await db.insertSkills({
+        ...info,
+        resumeId: currentResumeId,
+      });
+
+      set({ skillsInfo: info });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update skills info",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateActivitiesInfo: async (info: ActivitiesInfo) => {
+    try {
+      set({ isLoading: true, error: null });
+      const currentResumeId = useResumeStore.getState().currentResumeId;
+      if (!currentResumeId) throw new Error("No resume selected");
+
+      await db.insertActivity({
+        ...info,
+        resumeId: currentResumeId,
+      });
+
+      set({ activitiesInfo: info });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update activities info",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateProjectsInfo: async (info: ProjectsInfo) => {
+    try {
+      set({ isLoading: true, error: null });
+      const currentResumeId = useResumeStore.getState().currentResumeId;
+      if (!currentResumeId) throw new Error("No resume selected");
+
+      await db.insertProject({
+        ...info,
+        resumeId: currentResumeId,
+      });
+
+      set({ projectsInfo: info });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update projects info",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateCertificationsInfo: async (info: CertificationsInfo) => {
+    try {
+      set({ isLoading: true, error: null });
+      const currentResumeId = useResumeStore.getState().currentResumeId;
+      if (!currentResumeId) throw new Error("No resume selected");
+
+      await db.insertCertification({
+        ...info,
+        resumeId: currentResumeId,
+      });
+
+      set({ certificationsInfo: info });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update certifications info",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteEducation: async (educationId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      await db.deleteEducation(educationId);
+      set({ educationInfo: null });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to delete education",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteExperience: async (experienceId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      await db.deleteWorkExperience(experienceId);
+      set({ experienceInfo: null });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete experience",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteProject: async (projectId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      await db.deleteProject(projectId);
+      set({ projectsInfo: null });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to delete project",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteSkill: async (skillId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      await db.deleteSkill(skillId);
+      set({ skillsInfo: null });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to delete skill",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteActivity: async (activityId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      await db.deleteActivity(activityId);
+      set({ activitiesInfo: null });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to delete activity",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteCertification: async (certificationId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      await db.deleteCertification(certificationId);
+      set({ certificationsInfo: null });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete certification",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  clearFormData: () => {
+    set({
+      ...defaultInitState,
+      currentResumeId: null,
+    });
+  },
+}));
