@@ -40,7 +40,7 @@ export interface ResumeActions {
   fetchResumeDetails: (resumeId: number) => Promise<void>;
 
   // Create operations
-  createNewResume: (userId: string) => Promise<void>;
+  createNewResume: (userId: string) => Promise<number | null>;
 
   // Update operations
   updatePersonalInfo: (info: PersonalInfo) => Promise<void>;
@@ -210,6 +210,11 @@ export const useResumeStore = create<ResumeStore>((set) => ({
         userId: Number(userId),
         isDraft: true,
       });
+
+      if (!result || result.length === 0) {
+        throw new Error("Failed to create resume - no result returned");
+      }
+
       const resumeId = result[0].id;
       set({ currentResumeId: resumeId });
       return resumeId;
@@ -220,18 +225,20 @@ export const useResumeStore = create<ResumeStore>((set) => ({
             ? error.message
             : "Failed to create new resume",
       });
+      return null;
     } finally {
       set({ isLoading: false });
     }
   },
 
+  // Update Personal Info
   updatePersonalInfo: async (info: PersonalInfo) => {
     try {
       set({ isLoading: true, error: null });
       const currentResumeId = useResumeStore.getState().currentResumeId;
       if (!currentResumeId) throw new Error("No resume selected");
 
-      await db.insertPersonalInfo({
+      await db.updatePersonalInfo({
         ...info,
         resumeId: currentResumeId,
       });
@@ -249,16 +256,25 @@ export const useResumeStore = create<ResumeStore>((set) => ({
     }
   },
 
+  // Update Education Info
   updateEducationInfo: async (info: EducationInfo) => {
     try {
       set({ isLoading: true, error: null });
       const currentResumeId = useResumeStore.getState().currentResumeId;
       if (!currentResumeId) throw new Error("No resume selected");
 
-      await db.insertEducation({
-        ...info,
+      // Format each entry in the education array
+      const formattedEducation = info.education.map((entry) => ({
+        ...entry,
+        from: entry.from?.toISOString() ?? null,
+        to: entry.to?.toISOString() ?? null,
         resumeId: currentResumeId,
-      });
+      }));
+
+      // Assuming db.updateEducation can handle an array of formatted entries
+      await Promise.all(
+        formattedEducation.map((education) => db.updateEducation(education))
+      );
 
       set({ educationInfo: info });
     } catch (error) {
@@ -279,10 +295,18 @@ export const useResumeStore = create<ResumeStore>((set) => ({
       const currentResumeId = useResumeStore.getState().currentResumeId;
       if (!currentResumeId) throw new Error("No resume selected");
 
-      await db.insertExperience({
-        ...info,
+      const formattedExperience = info.experiences.map((entry) => ({
+        ...entry,
+        from: entry.from.toISOString(),
+        to: entry.to?.toISOString() ?? null,
         resumeId: currentResumeId,
-      });
+      }));
+
+      await Promise.all(
+        formattedExperience.map((experiences) =>
+          db.updateWorkExperience(experiences)
+        )
+      );
 
       set({ experienceInfo: info });
     } catch (error) {

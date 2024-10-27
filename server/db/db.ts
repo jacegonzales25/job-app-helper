@@ -94,7 +94,7 @@ export const insertUser = async (user: InsertUser) => {
 
 // Insert Resume
 export const insertResume = async (resume: InsertResume) => {
-  return db.insert(schema.resumes).values(resume);
+  return db.insert(schema.resumes).values(resume).returning();
 };
 
 // Insert Personal Info
@@ -156,6 +156,21 @@ export const updateResume = async (resume: InsertResume) => {
     .returning();
 };
 
+// Update Personal Info
+export const updatePersonalInfo = async (personalInfo: InsertPersonalInfo) => {
+  return db
+    .update(schema.personalInfo)
+    .set({
+      fullName: personalInfo.fullName ?? undefined,
+      location: personalInfo.location ?? undefined,
+      email: personalInfo.email ?? undefined,
+      contactNumber: personalInfo.contactNumber ?? undefined,
+      github: personalInfo.github ?? undefined,
+      linkedIn: personalInfo.linkedIn ?? undefined,
+    })
+    .where(eq(schema.personalInfo.id, personalInfo.id!))
+    .returning(); // Assuming id is required for updates
+};
 // Update Work Experience
 export const updateWorkExperience = async (experience: InsertExperiences) => {
   return db
