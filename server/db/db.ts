@@ -186,6 +186,17 @@ export const updateWorkExperience = async (experience: InsertExperiences) => {
     .returning();
 };
 
+export const updateSkills = async (skills: InsertSkills) => {
+  return db
+    .update(schema.skills)
+    .set({
+      category: skills.category ?? undefined,
+      items: skills.items.trim(","), // Join skills into a single comma-separated string
+    })
+    .where(eq(schema.skills.id, skills.id!)) // Assuming id is required for updates
+    .returning();
+};
+
 // Update Project
 export const updateProject = async (project: InsertProjects) => {
   return db

@@ -327,10 +327,14 @@ export const useResumeStore = create<ResumeStore>((set) => ({
       const currentResumeId = useResumeStore.getState().currentResumeId;
       if (!currentResumeId) throw new Error("No resume selected");
 
-      await db.insertSkills({
-        ...info,
+      const formattedSkills = info.skills.map((entry) => ({
+        ...entry,
+        items: entry.items.join(", "),
         resumeId: currentResumeId,
-      });
+      }));
+
+      await Promise.all(
+        formattedSkills.map((skills) => db.updateSkill(skills))
 
       set({ skillsInfo: info });
     } catch (error) {
