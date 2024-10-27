@@ -333,8 +333,7 @@ export const useResumeStore = create<ResumeStore>((set) => ({
         resumeId: currentResumeId,
       }));
 
-      await Promise.all(
-        formattedSkills.map((skills) => db.updateSkill(skills))
+      await Promise.all(formattedSkills.map((skill) => db.updateSkills(skill)));
 
       set({ skillsInfo: info });
     } catch (error) {
@@ -355,10 +354,17 @@ export const useResumeStore = create<ResumeStore>((set) => ({
       const currentResumeId = useResumeStore.getState().currentResumeId;
       if (!currentResumeId) throw new Error("No resume selected");
 
-      await db.insertActivity({
-        ...info,
-        resumeId: currentResumeId,
-      });
+      const formattedActivities =
+        info.activities?.map((entry) => ({
+          ...entry,
+          from: entry.from.toISOString(),
+          to: entry.to?.toISOString() ?? null,
+          resumeId: currentResumeId,
+        })) ?? []; // Default to empty array since it is an optional field
+
+      await Promise.all(
+        formattedActivities.map((activity) => db.updateActivity(activity))
+      );
 
       set({ activitiesInfo: info });
     } catch (error) {
@@ -379,10 +385,17 @@ export const useResumeStore = create<ResumeStore>((set) => ({
       const currentResumeId = useResumeStore.getState().currentResumeId;
       if (!currentResumeId) throw new Error("No resume selected");
 
-      await db.insertProject({
-        ...info,
-        resumeId: currentResumeId,
-      });
+      const formattedProjects =
+        info.projects?.map((entry) => ({
+          ...entry,
+          from: entry.from.toISOString(),
+          to: entry.to?.toISOString() ?? null,
+          resumeId: currentResumeId,
+        })) ?? []; // Default to empty array
+
+      await Promise.all(
+        formattedProjects.map((project) => db.updateActivity(project))
+      );
 
       set({ projectsInfo: info });
     } catch (error) {
@@ -403,10 +416,18 @@ export const useResumeStore = create<ResumeStore>((set) => ({
       const currentResumeId = useResumeStore.getState().currentResumeId;
       if (!currentResumeId) throw new Error("No resume selected");
 
-      await db.insertCertification({
-        ...info,
-        resumeId: currentResumeId,
-      });
+      const formattedCertifications =
+        info.certifications?.map((entry) => ({
+          ...entry,
+          from: entry.from.toISOString(),
+          to: entry.to?.toISOString() ?? null,
+          resumeId: currentResumeId,
+        })) ?? []; // Default to empty array
+
+      await Promise.all(
+        formattedCertifications.map((certification) => db.updateActivity(certification))
+      );
+
 
       set({ certificationsInfo: info });
     } catch (error) {

@@ -191,7 +191,7 @@ export const updateSkills = async (skills: InsertSkills) => {
     .update(schema.skills)
     .set({
       category: skills.category ?? undefined,
-      items: skills.items.trim(","), // Join skills into a single comma-separated string
+      items: skills.items ?? undefined,
     })
     .where(eq(schema.skills.id, skills.id!)) // Assuming id is required for updates
     .returning();
