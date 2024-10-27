@@ -170,12 +170,26 @@ export const useResumeStore = create<ResumeStore>((set) => ({
               to: details.projects[0].to
                 ? new Date(details.projects[0].to)
                 : undefined, // if optional
-            }
-          ]
-        } 
-        
-        details.projects[0] || null,
-        certificationsInfo: details.certifications[0] || null,
+            },
+          ],
+        },
+        certificationsInfo: {
+          certifications: [
+            {
+              title: details.certifications[0].title || "",
+              issuingOrganization:
+                details.certifications[0].issuingOrganization || "",
+              from: details.certifications[0]
+                ? new Date(details.certifications[0].from)
+                : new Date(),
+              to: details.certifications[0].to
+                ? new Date(details.certifications[0].to)
+                : undefined, // if optional
+              credentialID: details.certifications[0].credentialID || "",
+              credentialURL: details.certifications[0].credentialURL || "",
+            },
+          ],
+        },
       });
     } catch (error) {
       set({
