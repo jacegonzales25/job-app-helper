@@ -101,16 +101,20 @@ export const useResumeStore = create<ResumeStore>((set) => ({
           location: details.personalInfo[0].location,
           email: details.personalInfo[0].email,
           contactNumber: details.personalInfo[0].contactNumber ?? "",
-          github: details.personalInfo[0].github || undefined,
-          linkedIn: details.personalInfo[0].linkedIn || undefined,
+          github: details.personalInfo[0].github || "",
+          linkedIn: details.personalInfo[0].linkedIn || "",
         },
         educationInfo: {
           education: [
             {
               school: details.education[0].school,
               degree: details.education[0].degree,
-              from: details.education[0].from || undefined,
-              to: details.education[0].to,
+              from: details.education[0]
+                ? new Date(details.education[0].from)
+                : new Date(),
+              to: details.education[0]
+                ? new Date(details.education[0].to)
+                : new Date(), //not null
             },
           ],
         },
@@ -119,8 +123,12 @@ export const useResumeStore = create<ResumeStore>((set) => ({
             {
               company: details.workExperiences[0].company,
               position: details.workExperiences[0].position,
-              from: details.workExperiences[0].from,
-              to: details.workExperiences[0].to || undefined,
+              from: details.workExperiences[0]
+                ? new Date(details.workExperiences[0].from)
+                : new Date(),
+              to: details.workExperiences[0].to
+                ? new Date(details.workExperiences[0].to)
+                : undefined, // if optional
               description: details.workExperiences[0].description || "",
             },
           ],
@@ -129,25 +137,44 @@ export const useResumeStore = create<ResumeStore>((set) => ({
           skills: [
             {
               category: details.skills[0].category,
-              items: details.skills[0].items.split(",").map(skill => skill.trim()), // Split and trim each skill  
-            
-            }
-          ]
-        }
+              items: details.skills[0].items
+                .split(",")
+                .map((skill) => skill.trim()), // Split and trim each skill
+            },
+          ],
+        },
         activitiesInfo: {
           activities: [
             {
-              name: details.activities[0].name,
-              role: details.activities[0].role,
-              duration: {
-                from: details.activities[0].from,
-                to: details.activities[0].to || undefined,
-              },
-              description: details.activities[0].description,
+              name: details.activities[0].name || "",
+              role: details.activities[0].role || "",
+              from: details.activities[0]
+                ? new Date(details.activities[0].from)
+                : new Date(),
+              to: details.activities[0].to
+                ? new Date(details.activities[0].to)
+                : undefined, // if optional
+              description: details.activities[0].description || "",
+            },
+          ],
+        },
+        projectsInfo: {
+          projects: [
+            {
+              name: details.projects[0].name || "",
+              description: details.projects[0].description || "",
+              companyName: details.projects[0].companyName || "",
+              from: details.projects[0]
+                ? new Date(details.projects[0].from)
+                : new Date(),
+              to: details.projects[0].to
+                ? new Date(details.projects[0].to)
+                : undefined, // if optional
             }
           ]
-        }
-        projectsInfo: details.projects[0] || null,
+        } 
+        
+        details.projects[0] || null,
         certificationsInfo: details.certifications[0] || null,
       });
     } catch (error) {

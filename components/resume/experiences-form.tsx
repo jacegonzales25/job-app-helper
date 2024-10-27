@@ -223,9 +223,8 @@ export default function ExperienceForm() {
                   addExperience({
                     company: "",
                     position: "",
-                    to: new Date(),
                     from: new Date(),
-
+                    to: new Date() || undefined,
                     description: "",
                   })
                 }

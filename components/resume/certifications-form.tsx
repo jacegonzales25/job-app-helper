@@ -35,12 +35,10 @@ export const certificationsSchema = z.object({
         issuingOrganization: z.string().min(1, {
           message: "Issuing organization is required.",
         }),
-        issueDate: z.object({
-          from: z.date({
-            required_error: "Please indicate the start of your work",
-          }),
-          to: z.date().optional(),
+        from: z.date({
+          required_error: "Please indicate the start of your work",
         }),
+        to: z.date().optional(),
         credentialID: z.string().optional(),
         credentialURL: z.string().url().optional(),
       })
@@ -70,7 +68,7 @@ export default function CertificationsForm() {
   });
 
   function onSubmit(values: z.infer<typeof certificationsSchema>) {
-    updateCertificationsInfo(values)
+    updateCertificationsInfo(values);
     console.log("Form Submitted: ", values);
   }
 
@@ -112,7 +110,7 @@ export default function CertificationsForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name={`certifications.${index}.issueDate.from`}
+                    name={`certifications.${index}.from`}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Issue Date</FormLabel>
@@ -154,7 +152,7 @@ export default function CertificationsForm() {
                   />
                   <FormField
                     control={form.control}
-                    name={`certifications.${index}.issueDate.to`}
+                    name={`certifications.${index}.to`}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Expiry Date (Optional)</FormLabel>
@@ -237,10 +235,8 @@ export default function CertificationsForm() {
                 addCertification({
                   title: "",
                   issuingOrganization: "",
-                  issueDate: {
-                    from: new Date(),
-                    to: new Date(),
-                  },
+                  from: new Date(),
+                  to: new Date() || undefined,
                   credentialID: "",
                   credentialURL: "",
                 })

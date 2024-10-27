@@ -32,12 +32,10 @@ export const projectSchema = z.object({
     z.object({
       name: z.string().min(1, { message: "Project name is required." }),
       description: z.string().min(1, { message: "Description is required." }),
-      duration: z.object({
-        from: z.date({
-          required_error: "Please indicate the start of your work",
-        }),
-        to: z.date().optional(),
+      from: z.date({
+        required_error: "Please indicate the start of your work",
       }),
+      to: z.date().optional(),
       companyName: z.string().optional(), // Optional field for freelance or employment-based projects
     })
   ),
@@ -107,7 +105,7 @@ export default function ProjectForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name={`projects.${index}.duration.from`}
+                    name={`projects.${index}.from`}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>From</FormLabel>
@@ -149,7 +147,7 @@ export default function ProjectForm() {
                   />
                   <FormField
                     control={form.control}
-                    name={`projects.${index}.duration.to`}
+                    name={`projects.${index}.to`}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>To</FormLabel>
@@ -223,10 +221,8 @@ export default function ProjectForm() {
                 addProject({
                   name: "",
                   description: "",
-                  duration: {
-                    from: new Date(),
-                    to: new Date(),
-                  },
+                  from: new Date(),
+                  to: new Date() || undefined,
                   companyName: "",
                 })
               }
