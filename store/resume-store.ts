@@ -425,9 +425,10 @@ export const useResumeStore = create<ResumeStore>((set) => ({
         })) ?? []; // Default to empty array
 
       await Promise.all(
-        formattedCertifications.map((certification) => db.updateActivity(certification))
+        formattedCertifications.map((certification) =>
+          db.updateActivity(certification)
+        )
       );
-
 
       set({ certificationsInfo: info });
     } catch (error) {

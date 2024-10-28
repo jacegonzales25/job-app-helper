@@ -14,8 +14,10 @@ export const users = pgTable(
   "users",
   {
     id: serial("id").primaryKey(),
-    email: text("email").notNull().unique(), // User's email for login
-    passwordHash: text("password_hash").notNull(), // Encrypted password for login
+    email: text("email").notNull().unique(),
+    passwordHash: text("password_hash"), // Nullable for OAuth users
+    oauthProvider: text("oauth_provider"), // Google, Github, etc.
+    oauthId: text("oauth_id"), // ID from the OAuth provider
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (users) => {
@@ -24,6 +26,7 @@ export const users = pgTable(
     };
   }
 );
+
 export const resumes = pgTable("resumes", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),

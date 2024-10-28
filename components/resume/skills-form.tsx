@@ -16,10 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2, X } from "lucide-react";
-import {
-  useResumeActions,
-  useSkillsInfo,
-} from "@/store/providers/resume-store-provider";
+import { useResumeStore } from "@/store/resume-store";
 
 export const skillsSchema = z.object({
   skills: z.array(
@@ -33,8 +30,8 @@ export const skillsSchema = z.object({
 });
 
 export default function SkillsForm() {
-  const skillsData = useSkillsInfo();
-  const { updateSkillsInfo } = useResumeActions();
+  const store = useResumeStore();
+  const { skillsInfo } = store.fetchResumeDetails(0);
   const [newSkill, setNewSkill] = useState("");
 
   const form = useForm<z.infer<typeof skillsSchema>>({
@@ -42,7 +39,7 @@ export default function SkillsForm() {
     shouldUnregister: false,
     resolver: zodResolver(skillsSchema),
     defaultValues: {
-      skills: skillsData?.skills || [{ category: "", items: [] }],
+      skills: skillsInfo?.skills || [{ category: "", items: [] }],
     },
   });
 
@@ -56,14 +53,17 @@ export default function SkillsForm() {
   });
 
   function onSubmit(values: z.infer<typeof skillsSchema>) {
-    updateSkillsInfo(values);
+    store.updateSkillsInfo(values);
     console.log("Form Submitted: ", values);
   }
 
   const addSkillItem = (index: number) => {
     if (newSkill.trim()) {
       const currentItems = form.getValues(`skills.${index}.items`);
-      form.setValue(`skills.${index}.items`, [...currentItems, newSkill.trim()]);
+      form.setValue(`skills.${index}.items`, [
+        ...currentItems,
+        newSkill.trim(),
+      ]);
       setNewSkill("");
     }
   };
@@ -100,29 +100,25 @@ export default function SkillsForm() {
                   )}
                 />
                 <div className="flex flex-wrap gap-2">
-                  {form.watch(`skills.${index}.items`).map((item, itemIndex) => (
-                    <Button
-                      key={itemIndex}
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => removeSkillItem(index, itemIndex)}
-                    >
-                      {item}
-                      <X className="ml-2 h-4 w-4" />
-                    </Button>
-                  ))}
+                  {form
+                    .watch(`skills.${index}.items`)
+                    .map((item, itemIndex) => (
+                      <Button
+                        key={itemIndex}
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => removeSkillItem(index, itemIndex)}
+                      >
+                        {item}
+                        <X className="ml-2 h-4 w-4" />
+                      </Button>
+                    ))}
                 </div>
                 <div className="flex gap-2">
                   <Input
                     placeholder="Add a skill"
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addSkillItem(index);
-                      }
-                    }}
                   />
                   <Button type="button" onClick={() => addSkillItem(index)}>
                     Add
@@ -139,13 +135,18 @@ export default function SkillsForm() {
                 )}
               </div>
             ))}
-            <Button type="button" onClick={() => addSkillCategory({ category: "", items: [] })}>
+            <Button
+              type="button"
+              onClick={() => addSkillCategory({ category: "", items: [] })}
+            >
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Skill Category
             </Button>
           </CardContent>
         </Card>
-        <Button type="submit" className="mt-4">Save Skills</Button>
+        <Button type="submit" className="mt-4">
+          Save Skills
+        </Button>
       </form>
     </Form>
   );

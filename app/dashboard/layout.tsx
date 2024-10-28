@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../globals.css";
 import Header from "@/components/dashboard/header";
-import { ResumeStoreProvider } from "@/store/providers/resume-store-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const geistSans = localFont({
@@ -35,7 +34,7 @@ export default function DashboardLayout({
       >
         <Header />
         <QueryClientProvider client={queryClient}>
-          <ResumeStoreProvider>{children}</ResumeStoreProvider>
+          {children}
         </QueryClientProvider>
       </body>
     </html>
