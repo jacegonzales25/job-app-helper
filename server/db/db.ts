@@ -11,6 +11,9 @@ export const getUsers = async () => {
 
 // Queries
 
+
+
+
 export const getUserResume = async (userId: string) => {
   const userIdAsNumber = Number(userId); // Convert string to number to avoid overload of text to num
   if (isNaN(userIdAsNumber)) {
@@ -85,6 +88,26 @@ type InsertProjects = typeof schema.projects.$inferInsert;
 type InsertEducation = typeof schema.education.$inferInsert;
 type InsertActivities = typeof schema.activities.$inferInsert;
 type InsertCertifications = typeof schema.certifications.$inferInsert;
+
+export async function findOrCreateOAuthUser(email: string, provider: string, oauthId: string) {
+  const existingUser = await db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.email, email) && eq(users.oauthProvider, provider) && eq(users.oauthId, oauthId),
+  });
+
+  if (existingUser) {
+    return existingUser; // User already exists, return the user
+  }
+
+  // Otherwise, create a new user
+  const newUser = await db.insert(schema.users).values({
+    email,
+    oauthProvider: provider,
+    oauthId,
+    createdAt: new Date(),
+  });
+
+  return newUser;
+}
 
 // Insert User
 export const insertUser = async (user: InsertUser) => {
