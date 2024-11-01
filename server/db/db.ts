@@ -11,9 +11,6 @@ export const getUsers = async () => {
 
 // Queries
 
-
-
-
 export const getUserResume = async (userId: string) => {
   const userIdAsNumber = Number(userId); // Convert string to number to avoid overload of text to num
   if (isNaN(userIdAsNumber)) {
