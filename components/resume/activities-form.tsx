@@ -41,14 +41,23 @@ export const activitiesSchema = z.object({
 
 export default function ActivitiesForm() {
   const store = useResumeStore();
-  const activitiesData = store.activitiesInfo;
+  const transformedActivitiesData = {
+    activities: store.activitiesInfo?.activities?.map((activity) => ({
+      ...activity,
+      from:
+        activity.from instanceof Date ? activity.from : new Date(activity.from),
+      to: activity.to
+        ? activity.to instanceof Date
+          ? activity.to
+          : new Date(activity.to)
+        : undefined,
+    })),
+  };
   const form = useForm<z.infer<typeof activitiesSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(activitiesSchema),
-    defaultValues: {
-      activities: activitiesData?.activities || [],
-    },
+    defaultValues: transformedActivitiesData
   });
 
   const {

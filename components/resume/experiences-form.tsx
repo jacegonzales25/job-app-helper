@@ -39,14 +39,23 @@ export const experienceSchema = z.object({
 
 export default function ExperienceForm() {
   const store = useResumeStore();
-  const experiencesData = store.experienceInfo;
+  const transformedExperienceData = {
+    experiences:
+      store.experienceInfo?.experiences.map((exp) => ({
+        ...exp,
+        from: exp.from instanceof Date ? exp.from : new Date(exp.from),
+        to: exp.to
+          ? exp.to instanceof Date
+            ? exp.to
+            : new Date(exp.to)
+          : undefined,
+      })) || [],
+  };
   const form = useForm<z.infer<typeof experienceSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(experienceSchema),
-    defaultValues: {
-      experiences: experiencesData?.experiences || [],
-    },
+    defaultValues: transformedExperienceData,
   });
 
   const {

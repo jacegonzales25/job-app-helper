@@ -37,14 +37,21 @@ export const educationSchema = z.object({
 
 export default function EducationForm() {
   const store = useResumeStore();
-  const educationData = store.educationInfo;
+
+  const transformedEducationData = {
+    education:
+      store.educationInfo?.education.map((edu) => ({
+        ...edu,
+        from: edu.from instanceof Date ? edu.from : new Date(edu.from),
+        to: edu.to instanceof Date ? edu.to : new Date(edu.to),
+      })) || [],
+  };
+
   const form = useForm<z.infer<typeof educationSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(educationSchema),
-    defaultValues: {
-      education: educationData?.education || [],
-    },
+    defaultValues: transformedEducationData,
   });
 
   const {

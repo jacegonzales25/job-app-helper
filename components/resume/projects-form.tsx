@@ -40,14 +40,22 @@ export const projectSchema = z.object({
 
 export default function ProjectForm() {
   const store = useResumeStore();
-  const projectsData = store.projectsInfo;
+  const transformedProjectsData = {
+    projects: store.projectsInfo?.projects.map((project) => ({
+      ...project,
+      from: project.from instanceof Date ? project.from : new Date(project.from),
+      to: project.to
+        ? project.to instanceof Date
+          ? project.to
+          : new Date(project.to)
+        : undefined,
+    })),
+  }
   const form = useForm<z.infer<typeof projectSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(projectSchema),
-    defaultValues: {
-      projects: projectsData?.projects || [],
-    },
+    defaultValues: transformedProjectsData,
   });
 
   const {

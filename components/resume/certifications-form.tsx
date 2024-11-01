@@ -45,14 +45,22 @@ export const certificationsSchema = z.object({
 
 export default function CertificationsForm() {
   const store = useResumeStore();
-  const certificationsData = store.certificationsInfo;
+  const transformedCertificationsData = {
+    certifications: store.certificationsInfo?.certifications?.map((cert) => ({
+      ...cert,
+      from: cert.from instanceof Date ? cert.from : new Date(cert.from),
+      to: cert.to
+        ? cert.to instanceof Date
+          ? cert.to
+          : new Date(cert.to)
+        : undefined,
+    })),
+  };
   const form = useForm<z.infer<typeof certificationsSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(certificationsSchema),
-    defaultValues: {
-      certifications: certificationsData?.certifications || [],
-    },
+    defaultValues: transformedCertificationsData,
   });
 
   const {
