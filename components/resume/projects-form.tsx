@@ -22,10 +22,7 @@ import { PopoverTrigger } from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
-import {
-  useProjectsInfo,
-  useResumeActions,
-} from "@/store/providers/resume-store-provider";
+import { useResumeStore } from "@/store/resume-store";
 
 export const projectSchema = z.object({
   projects: z.array(
@@ -42,8 +39,8 @@ export const projectSchema = z.object({
 });
 
 export default function ProjectForm() {
-  const projectsData = useProjectsInfo();
-  const { updateProjectsInfo } = useResumeActions();
+  const store = useResumeStore();
+  const projectsData = store.projectsInfo;
   const form = useForm<z.infer<typeof projectSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
@@ -63,7 +60,7 @@ export default function ProjectForm() {
   });
 
   function onSubmit(values: z.infer<typeof projectSchema>) {
-    updateProjectsInfo(values);
+    store.updateProjectsInfo(values);
     console.log("Form Submitted: ", values);
   }
 

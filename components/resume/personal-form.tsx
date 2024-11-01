@@ -12,10 +12,7 @@ import {
 } from "../ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
-import {
-  usePersonalInfo,
-  useResumeActions,
-} from "@/store/providers/resume-store-provider";
+import { useResumeStore } from "@/store/resume-store";
 
 export const personalInfoSchema = z.object({
   fullName: z.string().min(1, { message: "Name is required." }),
@@ -27,8 +24,8 @@ export const personalInfoSchema = z.object({
 });
 
 export default function PersonalForm() {
-  const personalInfoData = usePersonalInfo();
-  const { updatePersonalInfo } = useResumeActions();
+  const store = useResumeStore();
+  const personalInfoData = store.personalInfo;
   const form = useForm<z.infer<typeof personalInfoSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
@@ -44,7 +41,7 @@ export default function PersonalForm() {
   });
 
   function onSubmit(values: z.infer<typeof personalInfoSchema>) {
-    updatePersonalInfo(values);
+    store.updatePersonalInfo(values);
     console.log("Form Submitted: ", values);
   }
 

@@ -31,7 +31,7 @@ export const skillsSchema = z.object({
 
 export default function SkillsForm() {
   const store = useResumeStore();
-  const { skillsInfo } = store.fetchResumeDetails(0);
+  const skillsInfo = store.skillsInfo;
   const [newSkill, setNewSkill] = useState("");
 
   const form = useForm<z.infer<typeof skillsSchema>>({

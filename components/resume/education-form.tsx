@@ -20,10 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
-import {
-  useEducationInfo,
-  useResumeActions,
-} from "@/store/providers/resume-store-provider";
+import { useResumeStore } from "@/store/resume-store";
 
 export const educationSchema = z.object({
   education: z.array(
@@ -39,8 +36,8 @@ export const educationSchema = z.object({
 });
 
 export default function EducationForm() {
-  const educationData = useEducationInfo();
-  const { updateEducationInfo } = useResumeActions();
+  const store = useResumeStore();
+  const educationData = store.educationInfo;
   const form = useForm<z.infer<typeof educationSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
@@ -60,7 +57,7 @@ export default function EducationForm() {
   });
 
   function onSubmit(values: z.infer<typeof educationSchema>) {
-    updateEducationInfo(values);
+    store.updateEducationInfo(values);
     console.log("Form Submitted: ", values);
   }
 

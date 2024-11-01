@@ -21,10 +21,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
-import {
-  useActivitiesInfo,
-  useResumeActions,
-} from "@/store/providers/resume-store-provider";
+import { useResumeStore } from "@/store/resume-store";
 
 export const activitiesSchema = z.object({
   activities: z
@@ -43,8 +40,8 @@ export const activitiesSchema = z.object({
 });
 
 export default function ActivitiesForm() {
-  const activitiesData = useActivitiesInfo();
-  const { updateActivitiesInfo } = useResumeActions();
+  const store = useResumeStore();
+  const activitiesData = store.activitiesInfo;
   const form = useForm<z.infer<typeof activitiesSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
@@ -64,7 +61,7 @@ export default function ActivitiesForm() {
   });
 
   function onSubmit(values: z.infer<typeof activitiesSchema>) {
-    updateActivitiesInfo(values);
+    store.updateActivitiesInfo(values);
     console.log("Form Submitted: ", values);
   }
 
