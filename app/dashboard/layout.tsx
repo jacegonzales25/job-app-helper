@@ -35,9 +35,9 @@ export default function DashboardLayout({
       >
         <Header />
         <Providers>
-          {/* <QueryClientProvider client={queryClient}> */}
+          <QueryClientProvider client={queryClient}>
             {children}
-          {/* </QueryClientProvider> */}
+          </QueryClientProvider>
         </Providers>
       </body>
     </html>
