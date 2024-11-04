@@ -144,9 +144,6 @@ export default function SkillsForm() {
             </Button>
           </CardContent>
         </Card>
-        <Button type="submit" className="mt-4">
-          Save Skills
-        </Button>
       </form>
     </Form>
   );

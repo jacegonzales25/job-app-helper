@@ -8,6 +8,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "../ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -110,7 +111,7 @@ export default function PersonalForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="Github Link" {...field} />
+                      <Input placeholder="Github Link (optional)" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,7 +124,10 @@ export default function PersonalForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="LinkedIn Link" {...field} />
+                      <Input
+                        placeholder="LinkedIn Link (optional)"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

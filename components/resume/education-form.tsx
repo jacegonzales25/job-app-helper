@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { useResumeStore } from "@/store/resume-store";
+import { YearMonthSelector } from "../ui/year-month";
 
 export const educationSchema = z.object({
   education: z.array(
@@ -110,38 +111,28 @@ export default function EducationForm() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>From</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "LLL yyyy")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date("2100-01-01") ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <YearMonthSelector
+                          year={
+                            field.value?.getFullYear() ||
+                            new Date().getFullYear()
+                          }
+                          month={(field.value?.getMonth() || 0) + 1}
+                          onYearChange={(year) => {
+                            const newDate = new Date(
+                              year,
+                              field.value?.getMonth() || 0
+                            );
+                            field.onChange(newDate);
+                          }}
+                          onMonthChange={(month) => {
+                            const newDate = new Date(
+                              field.value?.getFullYear() ||
+                                new Date().getFullYear(),
+                              month - 1
+                            );
+                            field.onChange(newDate);
+                          }}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -152,38 +143,28 @@ export default function EducationForm() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>To</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "LLL yyyy")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date("2100-01-01") ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <YearMonthSelector
+                          year={
+                            field.value?.getFullYear() ||
+                            new Date().getFullYear()
+                          }
+                          month={(field.value?.getMonth() || 0) + 1}
+                          onYearChange={(year) => {
+                            const newDate = new Date(
+                              year,
+                              field.value?.getMonth() || 0
+                            );
+                            field.onChange(newDate);
+                          }}
+                          onMonthChange={(month) => {
+                            const newDate = new Date(
+                              field.value?.getFullYear() ||
+                                new Date().getFullYear(),
+                              month - 1
+                            );
+                            field.onChange(newDate);
+                          }}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}

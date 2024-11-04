@@ -74,38 +74,57 @@ export default function ExperienceForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="p-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Card>
           <CardHeader>
-            <CardTitle>Work Experience</CardTitle>
-            <CardContent className="space-y-6">
-              {experienceFields.map((field, index) => (
-                <div key={field.id} className="space-y-4">
-                  {index > 0 && <Separator className="my-6" />}
-                  <FormField
-                    control={form.control}
-                    name={`experiences.${index}.company`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Company" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+            <CardTitle className="text-2xl font-bold">Work Experience</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {experienceFields.map((field, index) => (
+              <Card key={field.id} className="p-6 bg-muted/50">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">Experience {index + 1}</h3>
+                    {index > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeExperience(index)}
+                        className="text-destructive hover:text-destructive/90"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Remove
+                      </Button>
                     )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`experiences.${index}.position`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Position/Role" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.company`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Company</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter company name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.position`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Position</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your role" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -132,17 +151,13 @@ export default function ExperienceForm() {
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start"
-                            >
+                            <PopoverContent className="w-auto p-0" align="start">
                               <Calendar
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date("2100-01-01") ||
-                                  date < new Date("1900-01-01")
+                                  date > new Date() || date < new Date("1900-01-01")
                                 }
                                 initialFocus
                               />
@@ -177,18 +192,12 @@ export default function ExperienceForm() {
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start"
-                            >
+                            <PopoverContent className="w-auto p-0" align="start">
                               <Calendar
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
-                                disabled={(date) =>
-                                  date > new Date("2100-01-01") ||
-                                  date < new Date("1900-01-01")
-                                }
+                                disabled={(date) => date > new Date()}
                                 initialFocus
                               />
                             </PopoverContent>
@@ -198,48 +207,44 @@ export default function ExperienceForm() {
                       )}
                     />
                   </div>
-
                   <FormField
                     control={form.control}
                     name={`experiences.${index}.description`}
                     render={({ field }) => (
                       <FormItem>
+                        <FormLabel>Description</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Description" {...field} />
+                          <Textarea 
+                            placeholder="Describe your responsibilities and achievements" 
+                            className="min-h-[100px]"
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {index > 0 && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeExperience(index)}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Remove Experience
-                    </Button>
-                  )}
                 </div>
-              ))}
-              <Button
-                onClick={() =>
-                  addExperience({
-                    company: "",
-                    position: "",
-                    from: new Date(),
-                    to: new Date() || undefined,
-                    description: "",
-                  })
-                }
-              >
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Add Experience
-              </Button>
-            </CardContent>
-          </CardHeader>
+              </Card>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() =>
+                addExperience({
+                  company: "",
+                  position: "",
+                  from: new Date(),
+                  to: undefined,
+                  description: "",
+                })
+              }
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Experience
+            </Button>
+          </CardContent>
         </Card>
       </form>
     </Form>

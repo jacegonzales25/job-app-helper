@@ -1,4 +1,5 @@
 "use client";
+
 import { SessionProvider } from "next-auth/react";
 import MultiStepForm from "@/components/multi-page/multi-page-form";
 import PersonalForm from "@/components/resume/personal-form";
@@ -11,35 +12,13 @@ import CertificationsForm from "@/components/resume/certifications-form";
 
 export default function Dashboard() {
   const steps = [
-    {
-      title: "Personal Information",
-      component: <PersonalForm />,
-    },
-    {
-      title: "Skills",
-      component: <SkillsForm />,
-    },
-    {
-      title: "Education",
-      component: <EducationForm />,
-    },
-    {
-      title: "Experience",
-      component: <ExperienceForm />,
-    },
-
-    {
-      title: "Projects",
-      component: <ProjectForm />,
-    },
-    {
-      title: "Activities",
-      component: <ActivitiesForm />,
-    },
-    {
-      title: "Certifications",
-      component: <CertificationsForm />,
-    },
+    { component: <PersonalForm /> },
+    { component: <SkillsForm /> },
+    { component: <EducationForm /> },
+    { component: <ExperienceForm /> },
+    { component: <ProjectForm /> },
+    { component: <ActivitiesForm /> },
+    { component: <CertificationsForm /> },
   ];
 
   const handleStepComplete = (stepIndex: number) => {
@@ -52,11 +31,13 @@ export default function Dashboard() {
 
   return (
     <SessionProvider>
-      <MultiStepForm
-        steps={steps}
-        onStepComplete={handleStepComplete}
-        onFormComplete={handleFormComplete}
-      />
+      <div className="min-h-screen bg-gray-100">
+        <MultiStepForm
+          steps={steps}
+          onStepComplete={handleStepComplete}
+          onFormComplete={handleFormComplete}
+        />
+      </div>
     </SessionProvider>
   );
 }
