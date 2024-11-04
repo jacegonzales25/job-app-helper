@@ -15,7 +15,7 @@ export const users = pgTable(
   {
     id: serial("id").primaryKey(),
     email: text("email").notNull().unique(),
-    passwordHash: text("password_hash"), // Nullable for OAuth users
+    passwordHash: text("password_hash"), // Nullable for OAuth users, for future password if scaling to email/password
     oauthProvider: text("oauth_provider"), // Google, Github, etc.
     oauthId: text("oauth_id"), // ID from the OAuth provider
     createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "../globals.css";
 import Header from "@/components/dashboard/header";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SessionProvider } from "next-auth/react";
+import { Providers } from "../providers/provider";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -34,12 +34,11 @@ export default function DashboardLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        <SessionProvider>
-
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-        </SessionProvider>
+        <Providers>
+          {/* <QueryClientProvider client={queryClient}> */}
+            {children}
+          {/* </QueryClientProvider> */}
+        </Providers>
       </body>
     </html>
   );
