@@ -5,12 +5,19 @@ import PersonalForm from "@/components/resume/personal-form";
 import EducationForm from "@/components/resume/education-form";
 import ExperienceForm from "@/components/resume/experiences-form";
 import SkillsForm from "@/components/resume/skills-form";
+import ProjectForm from "@/components/resume/projects-form";
+import ActivitiesForm from "@/components/resume/activities-form";
+import CertificationsForm from "@/components/resume/certifications-form";
 
 export default function Dashboard() {
   const steps = [
     {
       title: "Personal Information",
       component: <PersonalForm />,
+    },
+    {
+      title: "Skills",
+      component: <SkillsForm />,
     },
     {
       title: "Education",
@@ -20,9 +27,18 @@ export default function Dashboard() {
       title: "Experience",
       component: <ExperienceForm />,
     },
+
     {
-      title: "Skills",
-      component: <SkillsForm />,
+      title: "Projects",
+      component: <ProjectForm />,
+    },
+    {
+      title: "Activities",
+      component: <ActivitiesForm />,
+    },
+    {
+      title: "Certifications",
+      component: <CertificationsForm />,
     },
   ];
 

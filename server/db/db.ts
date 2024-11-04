@@ -333,3 +333,4 @@ export const deleteCertification = async (certificationId: number) => {
     .where(eq(schema.certifications.id, certificationId))
     .returning(); // Return deleted certification data if needed
 };
+

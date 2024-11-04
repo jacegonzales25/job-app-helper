@@ -57,7 +57,7 @@ export default function ActivitiesForm() {
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(activitiesSchema),
-    defaultValues: transformedActivitiesData
+    defaultValues: transformedActivitiesData,
   });
 
   const {
@@ -73,170 +73,171 @@ export default function ActivitiesForm() {
     store.updateActivitiesInfo(values);
     console.log("Form Submitted: ", values);
   }
-
-  <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <Card className="p-6">
-        <CardHeader>
-          <CardTitle>Leadership Experience & Activities</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {activityFields.map((field, index) => (
-            <div key={field.id} className="space-y-4">
-              {index > 0 && <Separator className="my-6" />}
-              <FormField
-                control={form.control}
-                name={`activities.${index}.name`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea placeholder="Activity Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`activities.${index}.role`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input placeholder="Role" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <Card className="p-6">
+          <CardHeader>
+            <CardTitle>Leadership Experience & Activities</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {activityFields.map((field, index) => (
+              <div key={field.id} className="space-y-4">
+                {index > 0 && <Separator className="my-6" />}
                 <FormField
                   control={form.control}
-                  name={`activities.${index}.from`}
+                  name={`activities.${index}.name`}
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>From</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "LLL yyyy")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date("2100-01-01") ||
-                              date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <FormItem>
+                      <FormControl>
+                        <Textarea placeholder="Activity Name" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
-                  name={`activities.${index}.to`}
+                  name={`activities.${index}.role`}
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>To</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "LLL yyyy")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date("2100-01-01") ||
-                              date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Role" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name={`activities.${index}.from`}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "LLL yyyy")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date("2100-01-01") ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`activities.${index}.to`}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "LLL yyyy")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date("2100-01-01") ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name={`activities.${index}.description`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea placeholder="Description" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {index > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeActivity(index)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove Activity
+                  </Button>
+                )}
               </div>
-              <FormField
-                control={form.control}
-                name={`activities.${index}.description`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea placeholder="Description" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            ))}
+            <Button
+              onClick={() =>
+                addActivity({
+                  name: "",
+                  role: "",
 
-              {index > 0 && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => removeActivity(index)}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Remove Activity
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button
-            onClick={() =>
-              addActivity({
-                name: "",
-                role: "",
-
-                from: new Date(),
-                to: new Date(),
-                description: "",
-              })
-            }
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Activity
-          </Button>
-        </CardContent>
-      </Card>
-    </form>
-  </Form>;
+                  from: new Date(),
+                  to: new Date(),
+                  description: "",
+                })
+              }
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Activity
+            </Button>
+          </CardContent>
+        </Card>
+      </form>
+    </Form>
+  );
 }

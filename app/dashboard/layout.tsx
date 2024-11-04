@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../globals.css";
 import Header from "@/components/dashboard/header";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Providers } from "../providers/provider";
 
 const geistSans = localFont({
@@ -21,8 +20,6 @@ export const metadata: Metadata = {
   description: "Generate professional ATS-friendly resume",
 };
 
-const queryClient = new QueryClient();
-
 export default function DashboardLayout({
   children,
 }: Readonly<{
@@ -34,11 +31,7 @@ export default function DashboardLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        <Providers>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
