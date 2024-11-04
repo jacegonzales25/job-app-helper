@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Form,
   FormControl,
@@ -20,7 +19,7 @@ import { PlusCircle, Trash2, X } from "lucide-react";
 import { useResumeStore } from "@/store/resume-store";
 import { Badge } from "@/components/ui/badge";
 
-const skillsSchema = z.object({
+export const skillsSchema = z.object({
   skills: z.array(
     z.object({
       category: z.string().min(1, { message: "Category is required." }),
@@ -44,7 +43,11 @@ export default function SkillsForm() {
     },
   });
 
-  const { fields: skillFields, append: addSkillCategory, remove: removeSkillCategory } = useFieldArray({
+  const {
+    fields: skillFields,
+    append: addSkillCategory,
+    remove: removeSkillCategory,
+  } = useFieldArray({
     control: form.control,
     name: "skills",
   });
@@ -57,7 +60,10 @@ export default function SkillsForm() {
   const addSkillItem = (index: number) => {
     if (newSkill.trim()) {
       const currentItems = form.getValues(`skills.${index}.items`);
-      form.setValue(`skills.${index}.items`, [...currentItems, newSkill.trim()]);
+      form.setValue(`skills.${index}.items`, [
+        ...currentItems,
+        newSkill.trim(),
+      ]);
       setNewSkill("");
     }
   };
@@ -75,11 +81,16 @@ export default function SkillsForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card className="shadow-md">
           <CardHeader className="bg-muted/50">
-            <CardTitle className="text-2xl font-bold">Technical Skills</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Technical Skills
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {skillFields.map((field, index) => (
-              <Card key={field.id} className="p-4 bg-background border-2 border-muted">
+              <Card
+                key={field.id}
+                className="p-4 bg-background border-2 border-muted"
+              >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <FormField
@@ -87,9 +98,15 @@ export default function SkillsForm() {
                       name={`skills.${index}.category`}
                       render={({ field }) => (
                         <FormItem className="flex-grow mr-4">
-                          <FormLabel className="text-sm font-medium">Skill Category</FormLabel>
+                          <FormLabel className="text-sm font-medium">
+                            Skill Category
+                          </FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Programming Languages" {...field} className="bg-background" />
+                            <Input
+                              placeholder="e.g., Programming Languages"
+                              {...field}
+                              className="bg-background"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -107,24 +124,26 @@ export default function SkillsForm() {
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-muted/30 rounded-md">
-                    {form.watch(`skills.${index}.items`).map((item, itemIndex) => (
-                      <Badge
-                        key={itemIndex}
-                        variant="secondary"
-                        className="px-2 py-1 text-sm flex items-center gap-1 bg-primary/10 hover:bg-primary/20 transition-colors"
-                      >
-                        {item}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4 rounded-full p-0 hover:bg-destructive/10"
-                          onClick={() => removeSkillItem(index, itemIndex)}
+                    {form
+                      .watch(`skills.${index}.items`)
+                      .map((item, itemIndex) => (
+                        <Badge
+                          key={itemIndex}
+                          variant="secondary"
+                          className="px-2 py-1 text-sm flex items-center gap-1 bg-primary/10 hover:bg-primary/20 transition-colors"
                         >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </Badge>
-                    ))}
+                          {item}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-4 w-4 rounded-full p-0 hover:bg-destructive/10"
+                            onClick={() => removeSkillItem(index, itemIndex)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </Badge>
+                      ))}
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -133,7 +152,11 @@ export default function SkillsForm() {
                       onChange={(e) => setNewSkill(e.target.value)}
                       className="flex-grow bg-background"
                     />
-                    <Button type="button" onClick={() => addSkillItem(index)} variant="secondary">
+                    <Button
+                      type="button"
+                      onClick={() => addSkillItem(index)}
+                      variant="secondary"
+                    >
                       Add
                     </Button>
                   </div>

@@ -22,6 +22,7 @@ import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Textarea } from "../ui/textarea";
 import { useResumeStore } from "@/store/resume-store";
+import { YearMonthSelector } from "../ui/year-month";
 
 export const experienceSchema = z.object({
   experiences: z.array(
@@ -126,43 +127,34 @@ export default function ExperienceForm() {
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
+                  <FormField
                       control={form.control}
                       name={`experiences.${index}.from`}
                       render={({ field }) => (
-                        <FormItem className="flex flex-col">
+                        <FormItem>
                           <FormLabel>From</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value ? (
-                                    format(field.value, "LLL yyyy")
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) =>
-                                  date > new Date() || date < new Date("1900-01-01")
-                                }
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <YearMonthSelector
+                            year={
+                              field.value?.getFullYear() ||
+                              new Date().getFullYear()
+                            }
+                            month={(field.value?.getMonth() || 0) + 1}
+                            onYearChange={(year) => {
+                              const newDate = new Date(
+                                year,
+                                field.value?.getMonth() || 0
+                              );
+                              field.onChange(newDate);
+                            }}
+                            onMonthChange={(month) => {
+                              const newDate = new Date(
+                                field.value?.getFullYear() ||
+                                  new Date().getFullYear(),
+                                month - 1
+                              );
+                              field.onChange(newDate);
+                            }}
+                          />
                           <FormMessage />
                         </FormItem>
                       )}
@@ -171,37 +163,30 @@ export default function ExperienceForm() {
                       control={form.control}
                       name={`experiences.${index}.to`}
                       render={({ field }) => (
-                        <FormItem className="flex flex-col">
+                        <FormItem>
                           <FormLabel>To</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value ? (
-                                    format(field.value, "LLL yyyy")
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => date > new Date()}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <YearMonthSelector
+                            year={
+                              field.value?.getFullYear() ||
+                              new Date().getFullYear()
+                            }
+                            month={(field.value?.getMonth() || 0) + 1}
+                            onYearChange={(year) => {
+                              const newDate = new Date(
+                                year,
+                                field.value?.getMonth() || 0
+                              );
+                              field.onChange(newDate);
+                            }}
+                            onMonthChange={(month) => {
+                              const newDate = new Date(
+                                field.value?.getFullYear() ||
+                                  new Date().getFullYear(),
+                                month - 1
+                              );
+                              field.onChange(newDate);
+                            }}
+                          />
                           <FormMessage />
                         </FormItem>
                       )}

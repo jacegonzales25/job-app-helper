@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Form,
   FormControl,
@@ -19,7 +18,8 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "@/components/ui/year-month";
 
-const educationSchema = z.object({
+
+export const educationSchema = z.object({
   education: z.array(
     z.object({
       school: z.string().min(1, { message: "School is required." }),
@@ -50,7 +50,11 @@ export default function EducationForm() {
     defaultValues: transformedEducationData,
   });
 
-  const { fields: educationFields, append: addEducation, remove: removeEducation } = useFieldArray({
+  const {
+    fields: educationFields,
+    append: addEducation,
+    remove: removeEducation,
+  } = useFieldArray({
     control: form.control,
     name: "education",
   });
@@ -69,10 +73,15 @@ export default function EducationForm() {
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {educationFields.map((field, index) => (
-              <Card key={field.id} className="p-4 bg-background border-2 border-muted">
+              <Card
+                key={field.id}
+                className="p-4 bg-background border-2 border-muted"
+              >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Education {index + 1}</h3>
+                    <h3 className="text-lg font-semibold">
+                      Education {index + 1}
+                    </h3>
                     {index > 0 && (
                       <Button
                         variant="ghost"
@@ -93,7 +102,11 @@ export default function EducationForm() {
                         <FormItem>
                           <FormLabel>School Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter school name" {...field} className="bg-background" />
+                            <Input
+                              placeholder="Enter school name"
+                              {...field}
+                              className="bg-background"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -106,7 +119,11 @@ export default function EducationForm() {
                         <FormItem>
                           <FormLabel>Degree</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter degree" {...field} className="bg-background" />
+                            <Input
+                              placeholder="Enter degree"
+                              {...field}
+                              className="bg-background"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -121,14 +138,24 @@ export default function EducationForm() {
                         <FormItem>
                           <FormLabel>From</FormLabel>
                           <YearMonthSelector
-                            year={field.value?.getFullYear() || new Date().getFullYear()}
+                            year={
+                              field.value?.getFullYear() ||
+                              new Date().getFullYear()
+                            }
                             month={(field.value?.getMonth() || 0) + 1}
                             onYearChange={(year) => {
-                              const newDate = new Date(year, field.value?.getMonth() || 0);
+                              const newDate = new Date(
+                                year,
+                                field.value?.getMonth() || 0
+                              );
                               field.onChange(newDate);
                             }}
                             onMonthChange={(month) => {
-                              const newDate = new Date(field.value?.getFullYear() || new Date().getFullYear(), month - 1);
+                              const newDate = new Date(
+                                field.value?.getFullYear() ||
+                                  new Date().getFullYear(),
+                                month - 1
+                              );
                               field.onChange(newDate);
                             }}
                           />
@@ -143,14 +170,24 @@ export default function EducationForm() {
                         <FormItem>
                           <FormLabel>To</FormLabel>
                           <YearMonthSelector
-                            year={field.value?.getFullYear() || new Date().getFullYear()}
+                            year={
+                              field.value?.getFullYear() ||
+                              new Date().getFullYear()
+                            }
                             month={(field.value?.getMonth() || 0) + 1}
                             onYearChange={(year) => {
-                              const newDate = new Date(year, field.value?.getMonth() || 0);
+                              const newDate = new Date(
+                                year,
+                                field.value?.getMonth() || 0
+                              );
                               field.onChange(newDate);
                             }}
                             onMonthChange={(month) => {
-                              const newDate = new Date(field.value?.getFullYear() || new Date().getFullYear(), month - 1);
+                              const newDate = new Date(
+                                field.value?.getFullYear() ||
+                                  new Date().getFullYear(),
+                                month - 1
+                              );
                               field.onChange(newDate);
                             }}
                           />
@@ -164,7 +201,14 @@ export default function EducationForm() {
             ))}
             <Button
               type="button"
-              onClick={() => addEducation({ school: "", degree: "", from: new Date(), to: new Date() })}
+              onClick={() =>
+                addEducation({
+                  school: "",
+                  degree: "",
+                  from: new Date(),
+                  to: new Date(),
+                })
+              }
               variant="outline"
               className="w-full"
             >
