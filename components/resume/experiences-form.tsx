@@ -12,17 +12,13 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
-import { Calendar } from "../ui/calendar";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "../ui/year-month";
+import { YearMonthSelectorOptional } from "../ui/year-month-optional";
 
 export const experienceSchema = z.object({
   experiences: z.array(
@@ -165,7 +161,8 @@ export default function ExperienceForm() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>To</FormLabel>
-                          <YearMonthSelector
+                          <YearMonthSelectorOptional
+                          type="Employed"
                             year={
                               field.value?.getFullYear() ||
                               new Date().getFullYear()
@@ -185,6 +182,12 @@ export default function ExperienceForm() {
                                 month - 1
                               );
                               field.onChange(newDate);
+                            }}
+                            isCurrentlyEmployed={!field.value}
+                            onCurrentlyEmployedChange={(checked) => {
+                              field.onChange(
+                                checked ? undefined : new Date()
+                              );
                             }}
                           />
                           <FormMessage />
