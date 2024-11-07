@@ -137,9 +137,7 @@ export const useResumeStore = create<ResumeStore>((set) => ({
           skills: [
             {
               category: details.skills[0].category,
-              items: details.skills[0].items
-                .split(",")
-                .map((skill) => skill.trim()), // Split and trim each skill
+              items: details.skills[0].items,
             },
           ],
         },
@@ -332,7 +330,7 @@ export const useResumeStore = create<ResumeStore>((set) => ({
 
       const formattedSkills = info.skills.map((entry) => ({
         ...entry,
-        items: entry.items.join(", "),
+        items: entry.items.filter(Boolean), // Ensure items is an array of strings only
         resumeId: currentResumeId,
       }));
 
