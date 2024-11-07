@@ -21,6 +21,7 @@ export const getUserResume = async (userId: string) => {
   });
 };
 
+// if using multiple resume in the future
 export const getUserResumes = async (userId: string) => {
   const userIdAsNumber = Number(userId); // Convert string to number
   if (isNaN(userIdAsNumber)) {
@@ -205,12 +206,13 @@ export const updateWorkExperience = async (experience: InsertExperiences) => {
     .returning();
 };
 
+// Update Skills
 export const updateSkills = async (skills: InsertSkills) => {
   return db
     .update(schema.skills)
     .set({
       category: skills.category ?? undefined,
-      items: skills.items ?? undefined,
+      items: skills.items ?? undefined, // Directly handle items as an array
     })
     .where(eq(schema.skills.id, skills.id!)) // Assuming id is required for updates
     .returning();

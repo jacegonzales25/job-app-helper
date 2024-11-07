@@ -62,8 +62,8 @@ export const projects = pgTable("projects", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   companyName: text("company_name").default(""), // Optional field
-  from: date("from").notNull(),  // Changed to date
-  to: date("to"),                // Changed to date
+  from: date("from").notNull(), // Changed to date
+  to: date("to"), // Changed to date
 });
 
 export const activities = pgTable("activities", {
@@ -71,8 +71,8 @@ export const activities = pgTable("activities", {
   resumeId: integer("resume_id").references(() => resumes.id),
   name: text("name"),
   role: text("role"),
-  from: date("from").notNull(),  // Changed to date
-  to: date("to"),                // Changed to date
+  from: date("from").notNull(), // Changed to date
+  to: date("to"), // Changed to date
   description: text("description"),
 });
 
@@ -80,7 +80,7 @@ export const skills = pgTable("skills", {
   id: serial("id").primaryKey(),
   resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
   category: text("category").notNull(),
-  items: text("items").notNull(), // Could store skills as comma-separated or serialized JSON string
+  items: text("items").array().notNull(), // Could store skills as array
 });
 
 export const education = pgTable("education", {
@@ -88,8 +88,8 @@ export const education = pgTable("education", {
   resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
   school: text("school").notNull(),
   degree: text("degree").notNull(),
-  from: date("from").notNull(),  // Changed to date
-  to: date("to").notNull(),                // Changed to date
+  from: date("from").notNull(), // Changed to date
+  to: date("to").notNull(), // Changed to date
 });
 
 export const certifications = pgTable("certifications", {
@@ -97,8 +97,8 @@ export const certifications = pgTable("certifications", {
   resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
   title: text("title").notNull(),
   issuingOrganization: text("issuing_organization").notNull(),
-  from: date("from").notNull(),  // Changed to date
-  to: date("to"),                // Changed to date
+  from: date("from").notNull(), // Changed to date
+  to: date("to"), // Changed to date
   credentialID: text("credential_id").default(""), // Optional credential ID
   credentialURL: text("credential_url").default(""), // Optional credential URL
 });
