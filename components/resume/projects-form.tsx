@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,6 +37,8 @@ export const projectSchema = z.object({
 
 export default function ProjectForm() {
   const store = useResumeStore();
+  const updateProjectsInfo = store.updateProjectsInfo;
+
   const transformedProjectsData = {
     projects:
       store.projectsInfo?.projects.map((project) => ({
@@ -49,8 +52,9 @@ export default function ProjectForm() {
           : undefined,
       })) || [],
   };
+
   const form = useForm<z.infer<typeof projectSchema>>({
-    mode: "onSubmit",
+    mode: "onChange",
     shouldUnregister: false,
     resolver: zodResolver(projectSchema),
     defaultValues: transformedProjectsData,
@@ -65,8 +69,30 @@ export default function ProjectForm() {
     name: "projects",
   });
 
+  // Sync with Zustand store whenever form data changes
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const filledValues = {
+        projects:
+          values.projects?.map((project) => ({
+            ...project,
+            name: project?.name || "",
+            description: project?.description || "",
+            from:
+              project?.from instanceof Date
+                ? project.from
+                : new Date(project?.from || Date.now()),
+            to: project?.to instanceof Date ? project.to : undefined,
+            companyName: project?.companyName || "",
+          })) || [],
+      };
+      updateProjectsInfo(filledValues);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, updateProjectsInfo]);
+
   function onSubmit(values: z.infer<typeof projectSchema>) {
-    store.updateProjectsInfo(values);
+    updateProjectsInfo(values);
     console.log("Form Submitted: ", values);
   }
 

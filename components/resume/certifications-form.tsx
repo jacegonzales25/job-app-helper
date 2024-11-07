@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,6 +41,8 @@ export const certificationsSchema = z.object({
 
 export default function CertificationsForm() {
   const store = useResumeStore();
+  const updateCertificationsInfo = store.updateCertificationsInfo;
+
   const transformedCertificationsData = {
     certifications:
       store.certificationsInfo?.certifications?.map((cert) => ({
@@ -52,8 +55,9 @@ export default function CertificationsForm() {
           : undefined,
       })) || [],
   };
+
   const form = useForm<z.infer<typeof certificationsSchema>>({
-    mode: "onSubmit",
+    mode: "onChange",
     shouldUnregister: false,
     resolver: zodResolver(certificationsSchema),
     defaultValues: transformedCertificationsData,
@@ -68,8 +72,29 @@ export default function CertificationsForm() {
     name: "certifications",
   });
 
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const filledValues = {
+        certifications:
+          values.certifications?.map((cert) => ({
+            title: cert?.title || "",
+            issuingOrganization: cert?.issuingOrganization || "",
+            from:
+              cert?.from instanceof Date
+                ? cert.from
+                : new Date(cert?.from || Date.now()),
+            to: cert?.to instanceof Date ? cert.to : undefined,
+            credentialID: cert?.credentialID || "",
+            credentialURL: cert?.credentialURL || "",
+          })) || [],
+      };
+      updateCertificationsInfo(filledValues);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, updateCertificationsInfo]);
+
   function onSubmit(values: z.infer<typeof certificationsSchema>) {
-    store.updateCertificationsInfo(values);
+    updateCertificationsInfo(values);
     console.log("Form Submitted: ", values);
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -32,15 +32,14 @@ export const skillsSchema = z.object({
 
 export default function SkillsForm() {
   const store = useResumeStore();
-  const skillsInfo = store.skillsInfo;
-  const [newSkill, setNewSkill] = useState<string[]>([]);
+  const skillsInfo = store.skillsInfo || { skills: [] };
+  const updateSkillsInfo = store.updateSkillsInfo;
 
+  // Maintain Zustand state as default values
   const form = useForm<z.infer<typeof skillsSchema>>({
-    mode: "onSubmit",
+    mode: "onChange",
     resolver: zodResolver(skillsSchema),
-    defaultValues: {
-      skills: skillsInfo?.skills || [{ category: "", items: [] }],
-    },
+    defaultValues: { skills: skillsInfo.skills },
   });
 
   const {
@@ -52,10 +51,23 @@ export default function SkillsForm() {
     name: "skills",
   });
 
-  function onSubmit(values: z.infer<typeof skillsSchema>) {
-    store.updateSkillsInfo(values);
-    console.log("Form Submitted: ", values);
-  }
+  useEffect(() => {
+    // Watch the form and update Zustand store whenever there's a change
+    const subscription = form.watch((values) => {
+      const filledValues = {
+        skills: values.skills?.map((skill) => ({
+          category: skill?.category || "",
+          items: (skill?.items || []).filter(Boolean) as string[], // Ensure items is an array of strings only
+        })) || [],
+      };
+      updateSkillsInfo(filledValues);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, updateSkillsInfo]);
+  
+
+  // Use individual state per input for adding new skills in categories
+  const [newSkill, setNewSkill] = useState<string[]>([]);
 
   const addSkillItem = (index: number) => {
     if (newSkill[index]?.trim()) {
@@ -65,7 +77,7 @@ export default function SkillsForm() {
         newSkill[index].trim(),
       ]);
 
-      // Clear the input for the specific category
+      // Clear the specific skill input field
       setNewSkill((prev) => {
         const updatedSkills = [...prev];
         updatedSkills[index] = "";
@@ -84,7 +96,10 @@ export default function SkillsForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(() => console.log("Skills submitted"))}
+        className="space-y-8"
+      >
         <Card className="shadow-md">
           <CardHeader className="bg-muted/50">
             <CardTitle className="text-2xl font-bold">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,6 +37,8 @@ export const experienceSchema = z.object({
 
 export default function ExperienceForm() {
   const store = useResumeStore();
+  const updateExperienceInfo = store.updateExperienceInfo;
+
   const transformedExperienceData = {
     experiences:
       store.experienceInfo?.experiences.map((exp) => ({
@@ -48,8 +51,9 @@ export default function ExperienceForm() {
           : undefined,
       })) || [],
   };
+
   const form = useForm<z.infer<typeof experienceSchema>>({
-    mode: "onSubmit",
+    mode: "onChange",
     shouldUnregister: false,
     resolver: zodResolver(experienceSchema),
     defaultValues: transformedExperienceData,
@@ -64,8 +68,30 @@ export default function ExperienceForm() {
     name: "experiences",
   });
 
+  // Update Zustand store when form data changes
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const filledValues = {
+        experiences:
+          values.experiences?.map((exp) => ({
+            ...exp,
+            company: exp?.company || "",
+            position: exp?.position || "",
+            from:
+              exp?.from instanceof Date
+                ? exp.from
+                : new Date(exp?.from || Date.now()),
+            to: exp?.to instanceof Date ? exp.to : undefined,
+            description: exp?.description || "",
+          })) || [], // Ensure experiences is always an array
+      };
+      updateExperienceInfo(filledValues);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, updateExperienceInfo]);
+
   function onSubmit(values: z.infer<typeof experienceSchema>) {
-    store.updateExperienceInfo(values);
+    updateExperienceInfo(values);
     console.log("Form Submitted: ", values);
   }
 
@@ -192,9 +218,7 @@ export default function ExperienceForm() {
                             }}
                             isCurrentlyEmployed={!field.value}
                             onCurrentlyEmployedChange={(checked) => {
-                              field.onChange(
-                                checked ? undefined : new Date()
-                              );
+                              field.onChange(checked ? undefined : new Date());
                             }}
                           />
                           <FormMessage />

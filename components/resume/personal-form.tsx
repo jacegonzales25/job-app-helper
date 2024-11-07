@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useResumeStore } from "@/store/resume-store";
+import { useEffect } from "react";
 
 export const personalInfoSchema = z.object({
   fullName: z.string().min(1, { message: "Name is required." }),
@@ -33,7 +34,7 @@ export default function PersonalForm() {
     shouldUnregister: false,
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      fullName: personalInfoData?.fullName || "",
+      fullName: personalInfoData?.fullName || "", // Provide empty string as default
       location: personalInfoData?.location || "",
       email: personalInfoData?.email || "",
       contactNumber: personalInfoData?.contactNumber || "",
@@ -41,6 +42,23 @@ export default function PersonalForm() {
       linkedIn: personalInfoData?.linkedIn || "",
     },
   });
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const filledValues = {
+        fullName: values.fullName ?? "",
+        location: values.location ?? "",
+        email: values.email ?? "",
+        contactNumber: values.contactNumber ?? "",
+        github: values.github ?? "",
+        linkedIn: values.linkedIn ?? "",
+      };
+      
+      store.updatePersonalInfo(filledValues);
+    });
+  
+    return () => subscription.unsubscribe();
+  }, [form, store]);
 
   function onSubmit(values: z.infer<typeof personalInfoSchema>) {
     store.updatePersonalInfo(values);
@@ -149,6 +167,7 @@ export default function PersonalForm() {
                 )}
               />
             </div>
+            <Button type="submit">Save</Button>
           </CardContent>
         </Card>
       </form>

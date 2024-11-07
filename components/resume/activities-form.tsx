@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,6 +39,8 @@ export const activitiesSchema = z.object({
 
 export default function ActivitiesForm() {
   const store = useResumeStore();
+  const updateActivitiesInfo = store.updateActivitiesInfo;
+
   const transformedActivitiesData = {
     activities:
       store.activitiesInfo?.activities?.map((activity) => ({
@@ -53,6 +56,7 @@ export default function ActivitiesForm() {
           : undefined,
       })) || [],
   };
+
   const form = useForm<z.infer<typeof activitiesSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
@@ -69,8 +73,28 @@ export default function ActivitiesForm() {
     name: "activities",
   });
 
+  useEffect(() => {
+    const subscription =
+      form.watch((values) => {
+        const filledValues = {
+          activities: values.activities?.map((activity) => ({
+            name: activity?.name || "",
+            role: activity?.role || "",
+            from:
+              activity?.from instanceof Date
+                ? activity.from
+                : new Date(activity?.from || Date.now()),
+            to: activity?.to instanceof Date ? activity.to : undefined,
+            description: activity?.description || "",
+          })),
+        };
+        updateActivitiesInfo(filledValues);
+      }) || [];
+    return () => subscription.unsubscribe();
+  }, [form, updateActivitiesInfo]);
+
   function onSubmit(values: z.infer<typeof activitiesSchema>) {
-    store.updateActivitiesInfo(values);
+    updateActivitiesInfo(values);
     console.log("Form Submitted: ", values);
   }
 

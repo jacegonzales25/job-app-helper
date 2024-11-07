@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -18,7 +19,6 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "@/components/ui/year-month";
 
-
 export const educationSchema = z.object({
   education: z.array(
     z.object({
@@ -34,6 +34,7 @@ export const educationSchema = z.object({
 
 export default function EducationForm() {
   const store = useResumeStore();
+  const updateEducationInfo = store.updateEducationInfo;
 
   const transformedEducationData = {
     education:
@@ -45,7 +46,7 @@ export default function EducationForm() {
   };
 
   const form = useForm<z.infer<typeof educationSchema>>({
-    mode: "onSubmit",
+    mode: "onChange",
     resolver: zodResolver(educationSchema),
     defaultValues: transformedEducationData,
   });
@@ -59,8 +60,29 @@ export default function EducationForm() {
     name: "education",
   });
 
+  // Update Zustand store when form data changes
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const filledValues = {
+        education:
+          values.education?.map((edu) => ({
+            school: edu?.school || "",
+            degree: edu?.degree || "",
+            from:
+              edu?.from instanceof Date
+                ? edu.from
+                : new Date(edu?.from || Date.now()),
+            to:
+              edu?.to instanceof Date ? edu.to : new Date(edu?.to || Date.now()),
+          })) || [], // Ensure education is always an array
+      };
+      updateEducationInfo(filledValues);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, updateEducationInfo]);
+
   function onSubmit(values: z.infer<typeof educationSchema>) {
-    store.updateEducationInfo(values);
+    updateEducationInfo(values);
     console.log("Form Submitted: ", values);
   }
 
@@ -168,7 +190,12 @@ export default function EducationForm() {
                       name={`education.${index}.to`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>To <span className="text-sm text-muted-foreground">or Expected Graduation</span></FormLabel>
+                          <FormLabel>
+                            To{" "}
+                            <span className="text-sm text-muted-foreground">
+                              or Expected Graduation
+                            </span>
+                          </FormLabel>
                           <YearMonthSelector
                             year={
                               field.value?.getFullYear() ||
@@ -217,7 +244,6 @@ export default function EducationForm() {
             </Button>
           </CardContent>
         </Card>
-        {/* <Button type="submit" className="w-full">Save Education</Button> */}
       </form>
     </Form>
   );
