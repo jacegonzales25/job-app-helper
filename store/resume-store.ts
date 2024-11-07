@@ -242,8 +242,11 @@ export const useResumeStore = create<ResumeStore>((set) => ({
         ...info,
         resumeId: currentResumeId,
       });
-
       set({ personalInfo: info });
+      console.log(
+        "Updated personalInfo in Zustand:",
+        useResumeStore.getState().personalInfo
+      );
     } catch (error) {
       set({
         error:

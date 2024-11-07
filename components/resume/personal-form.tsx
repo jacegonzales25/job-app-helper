@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useResumeStore } from "@/store/resume-store";
 import { useEffect } from "react";
 
@@ -53,10 +52,10 @@ export default function PersonalForm() {
         github: values.github ?? "",
         linkedIn: values.linkedIn ?? "",
       };
-      
+
       store.updatePersonalInfo(filledValues);
     });
-  
+
     return () => subscription.unsubscribe();
   }, [form, store]);
 
@@ -167,7 +166,6 @@ export default function PersonalForm() {
                 )}
               />
             </div>
-            <Button type="submit">Save</Button>
           </CardContent>
         </Card>
       </form>
