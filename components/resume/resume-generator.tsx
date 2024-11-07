@@ -1,11 +1,24 @@
 /* eslint-disable no-unused-vars */
-'use client'
+"use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { FileText } from "lucide-react";
 import { Button } from "../ui/button";
-
+import MultiStepForm from "../multi-page/multi-page-form";
+import PersonalForm from "./personal-form";
+import SkillsForm from "./skills-form";
+import EducationForm from "./education-form";
+import ExperienceForm from "./experiences-form";
+import ProjectForm from "./projects-form";
+import ActivitiesForm from "./activities-form";
+import CertificationsForm from "./certifications-form";
 import ResumeForm from "./resume-form";
 
 export default function ResumeGenerator() {
@@ -20,6 +33,23 @@ export default function ResumeGenerator() {
     setIsFormOpen(false);
   };
 
+  const steps = [
+    { component: <PersonalForm /> },
+    { component: <SkillsForm /> },
+    { component: <EducationForm /> },
+    { component: <ExperienceForm /> },
+    { component: <ProjectForm /> },
+    { component: <ActivitiesForm /> },
+    { component: <CertificationsForm /> },
+  ];
+
+  const handleStepComplete = (stepIndex: number) => {
+    console.log(`Step ${stepIndex + 1} completed.`);
+  };
+
+  const handleFormComplete = () => {
+    console.log("Form completed.");
+  };
 
   return (
     <Card>
@@ -33,27 +63,31 @@ export default function ResumeGenerator() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Conditionally render buttons or form */}
-            {!isFormOpen ? (
-              <div className="flex flex-col items-center gap-4">
-                {hasResume ? (
-                  <Button onClick={handleOpenForm} className="w-1/2">
-                    Edit Existing Resume
-                  </Button>
-                ) : (
-                  <Button onClick={handleOpenForm} className="w-1/2">
-                    Create New Resume
-                  </Button>
-                )}
-              </div>
+        {/* Conditionally render buttons or the multi-step form */}
+        {!isFormOpen ? (
+          <div className="flex flex-col items-center gap-4">
+            {hasResume ? (
+              <Button onClick={handleOpenForm} className="w-1/2">
+                Edit Existing Resume
+              </Button>
             ) : (
-              <div className="flex flex-col items-center gap-4">
-                <ResumeForm /> {/* Render the resume form when open */}
-                <Button onClick={handleCloseForm} className="w-1/2 mt-4">
-                  Close Resume Builder
-                </Button>
-              </div>
+              <Button onClick={handleOpenForm} className="w-1/2">
+                Create New Resume
+              </Button>
             )}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <MultiStepForm
+              steps={steps}
+              onStepComplete={handleStepComplete}
+              onFormComplete={handleFormComplete}
+            />
+            <Button onClick={handleCloseForm} className="w-1/2 mt-4">
+              Close Resume Builder
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
