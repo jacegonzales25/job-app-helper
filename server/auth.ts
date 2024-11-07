@@ -24,7 +24,12 @@ export const authOptions: NextAuthOptions = {
         const oauthProvider = account.provider;
         const email = user.email;
 
-        await findOrCreateOAuthUser(email, oauthProvider, oauthId);
+        try {
+          await findOrCreateOAuthUser(email, oauthProvider, oauthId);
+        } catch (error) {
+          console.error("Error in findOrCreateOAuthUser:", error);
+          return false; // Reject sign-in if there's an error
+        }
       }
       return true;
     },
@@ -45,4 +50,5 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
+  debug: true
 };

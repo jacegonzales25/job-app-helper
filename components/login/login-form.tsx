@@ -26,7 +26,7 @@ export default function LoginForm() {
           <Button 
             variant="outline" 
             className="w-full justify-start border border-gray-300 bg-white text-gray-700 hover:bg-gray-50" 
-            onClick={() => signIn('google', { callbackUrl: 'https://job-app-helper.vercel.app/dashboard' })}
+            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
           >
             <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
               <path
@@ -51,7 +51,7 @@ export default function LoginForm() {
           <Button 
             variant="outline" 
             className="w-full justify-start border border-gray-300 bg-white text-gray-700 hover:bg-gray-50" 
-            onClick={() => signIn('github', { callbackUrl: 'https://job-app-helper.vercel.app/dashboard' })}
+            onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
           >
             <Github className="mr-2 h-5 w-5" />
             Continue with GitHub

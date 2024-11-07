@@ -1,5 +1,6 @@
-import Carousel from "../carousel/carousel";
-import LoginForm from "../login/login-form";
+import Carousel from "@/components/carousel/carousel";
+import LoginForm from "@/components/login/login-form";
+
 
 export default function LandingPage() {
   return (
