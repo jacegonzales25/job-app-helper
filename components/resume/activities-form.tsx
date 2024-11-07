@@ -10,18 +10,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Separator } from "../ui/separator";
-import { Textarea } from "../ui/textarea";
-import { Input } from "../ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
-import { Calendar } from "../ui/calendar";
+} from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { PlusCircle, Trash2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useResumeStore } from "@/store/resume-store";
+import { YearMonthSelector } from "@/components/ui/year-month";
+import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
 
 export const activitiesSchema = z.object({
   activities: z
@@ -30,7 +27,7 @@ export const activitiesSchema = z.object({
         name: z.string().min(1, { message: "Activity name is required." }),
         role: z.string().min(1, { message: "Role is required." }),
         from: z.date({
-          required_error: "Please indicate the start of your work",
+          required_error: "Please indicate the start date of your activity",
         }),
         to: z.date().optional(),
         description: z.string(),
@@ -42,16 +39,19 @@ export const activitiesSchema = z.object({
 export default function ActivitiesForm() {
   const store = useResumeStore();
   const transformedActivitiesData = {
-    activities: store.activitiesInfo?.activities?.map((activity) => ({
-      ...activity,
-      from:
-        activity.from instanceof Date ? activity.from : new Date(activity.from),
-      to: activity.to
-        ? activity.to instanceof Date
-          ? activity.to
-          : new Date(activity.to)
-        : undefined,
-    })),
+    activities:
+      store.activitiesInfo?.activities?.map((activity) => ({
+        ...activity,
+        from:
+          activity.from instanceof Date
+            ? activity.from
+            : new Date(activity.from),
+        to: activity.to
+          ? activity.to instanceof Date
+            ? activity.to
+            : new Date(activity.to)
+          : undefined,
+      })) || [],
   };
   const form = useForm<z.infer<typeof activitiesSchema>>({
     mode: "onSubmit",
@@ -73,161 +73,168 @@ export default function ActivitiesForm() {
     store.updateActivitiesInfo(values);
     console.log("Form Submitted: ", values);
   }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="p-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Card>
           <CardHeader>
-            <CardTitle>Leadership Experience & Activities</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Leadership Experience & Activities
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {activityFields.map((field, index) => (
-              <div key={field.id} className="space-y-4">
-                {index > 0 && <Separator className="my-6" />}
-                <FormField
-                  control={form.control}
-                  name={`activities.${index}.name`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea placeholder="Activity Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`activities.${index}.role`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Role" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`activities.${index}.from`}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>From</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "LLL yyyy")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date("2100-01-01") ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
+              <Card key={field.id} className="p-6 bg-muted/50">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">
+                      Activity {index + 1}
+                    </h3>
+                    {index > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeActivity(index)}
+                        className="text-destructive hover:text-destructive/90"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Remove
+                      </Button>
                     )}
-                  />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`activities.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Activity Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter activity name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`activities.${index}.role`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Role</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your role" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`activities.${index}.from`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>From</FormLabel>
+                          <YearMonthSelector
+                            year={
+                              field.value?.getFullYear() ||
+                              new Date().getFullYear()
+                            }
+                            month={(field.value?.getMonth() || 0) + 1}
+                            onYearChange={(year) => {
+                              const newDate = new Date(
+                                year,
+                                field.value?.getMonth() || 0
+                              );
+                              field.onChange(newDate);
+                            }}
+                            onMonthChange={(month) => {
+                              const newDate = new Date(
+                                field.value?.getFullYear() ||
+                                  new Date().getFullYear(),
+                                month - 1
+                              );
+                              field.onChange(newDate);
+                            }}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`activities.${index}.to`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>To</FormLabel>
+                          <YearMonthSelectorOptional
+                            type="Ongoing"
+                            year={
+                              field.value?.getFullYear() ||
+                              new Date().getFullYear()
+                            }
+                            month={(field.value?.getMonth() || 0) + 1}
+                            onYearChange={(year) => {
+                              const newDate = new Date(
+                                year,
+                                field.value?.getMonth() || 0
+                              );
+                              field.onChange(newDate);
+                            }}
+                            onMonthChange={(month) => {
+                              const newDate = new Date(
+                                field.value?.getFullYear() ||
+                                  new Date().getFullYear(),
+                                month - 1
+                              );
+                              field.onChange(newDate);
+                            }}
+                            isCurrentlyEmployed={!field.value}
+                            onCurrentlyEmployedChange={(checked) => {
+                              field.onChange(checked ? undefined : new Date());
+                            }}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     control={form.control}
-                    name={`activities.${index}.to`}
+                    name={`activities.${index}.description`}
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>To</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "LLL yyyy")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date("2100-01-01") ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Describe your role and achievements in this activity"
+                            className="min-h-[100px]"
+                            {...field}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                <FormField
-                  control={form.control}
-                  name={`activities.${index}.description`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea placeholder="Description" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {index > 0 && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => removeActivity(index)}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Remove Activity
-                  </Button>
-                )}
-              </div>
+              </Card>
             ))}
             <Button
+              type="button"
+              variant="outline"
+              className="w-full"
               onClick={() =>
                 addActivity({
                   name: "",
                   role: "",
-
                   from: new Date(),
-                  to: new Date(),
+                  to: undefined,
                   description: "",
                 })
               }

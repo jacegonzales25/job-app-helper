@@ -168,7 +168,7 @@ export default function EducationForm() {
                       name={`education.${index}.to`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>To</FormLabel>
+                          <FormLabel>To <span className="text-sm text-muted-foreground">or Expected Graduation</span></FormLabel>
                           <YearMonthSelector
                             year={
                               field.value?.getFullYear() ||

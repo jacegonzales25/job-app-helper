@@ -74,14 +74,18 @@ export default function ExperienceForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">Work Experience</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Work Experience
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {experienceFields.map((field, index) => (
               <Card key={field.id} className="p-6 bg-muted/50">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">Experience {index + 1}</h3>
+                    <h3 className="text-lg font-semibold">
+                      Experience {index + 1}
+                    </h3>
                     {index > 0 && (
                       <Button
                         variant="ghost"
@@ -102,7 +106,10 @@ export default function ExperienceForm() {
                         <FormItem>
                           <FormLabel>Company</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter company name" {...field} />
+                            <Input
+                              placeholder="Enter company name"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -123,7 +130,7 @@ export default function ExperienceForm() {
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
+                    <FormField
                       control={form.control}
                       name={`experiences.${index}.from`}
                       render={({ field }) => (
@@ -162,7 +169,7 @@ export default function ExperienceForm() {
                         <FormItem>
                           <FormLabel>To</FormLabel>
                           <YearMonthSelectorOptional
-                          type="Employed"
+                            type="Currently Employed"
                             year={
                               field.value?.getFullYear() ||
                               new Date().getFullYear()
@@ -202,10 +209,10 @@ export default function ExperienceForm() {
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Describe your responsibilities and achievements" 
+                          <Textarea
+                            placeholder="Describe your responsibilities and achievements"
                             className="min-h-[100px]"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />

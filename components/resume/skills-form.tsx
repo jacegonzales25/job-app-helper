@@ -33,7 +33,7 @@ export const skillsSchema = z.object({
 export default function SkillsForm() {
   const store = useResumeStore();
   const skillsInfo = store.skillsInfo;
-  const [newSkill, setNewSkill] = useState("");
+  const [newSkill, setNewSkill] = useState<string[]>([]);
 
   const form = useForm<z.infer<typeof skillsSchema>>({
     mode: "onSubmit",
@@ -58,13 +58,19 @@ export default function SkillsForm() {
   }
 
   const addSkillItem = (index: number) => {
-    if (newSkill.trim()) {
+    if (newSkill[index]?.trim()) {
       const currentItems = form.getValues(`skills.${index}.items`);
       form.setValue(`skills.${index}.items`, [
         ...currentItems,
-        newSkill.trim(),
+        newSkill[index].trim(),
       ]);
-      setNewSkill("");
+
+      // Clear the input for the specific category
+      setNewSkill((prev) => {
+        const updatedSkills = [...prev];
+        updatedSkills[index] = "";
+        return updatedSkills;
+      });
     }
   };
 
@@ -148,8 +154,15 @@ export default function SkillsForm() {
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add a skill"
-                      value={newSkill}
-                      onChange={(e) => setNewSkill(e.target.value)}
+                      value={newSkill[index] || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNewSkill((prev) => {
+                          const updatedSkills = [...prev];
+                          updatedSkills[index] = value;
+                          return updatedSkills;
+                        });
+                      }}
                       className="flex-grow bg-background"
                     />
                     <Button

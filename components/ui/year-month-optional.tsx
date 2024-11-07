@@ -1,32 +1,32 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
-import { format } from 'date-fns'
+import * as React from "react";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { format } from "date-fns";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Card, CardContent } from "@/components/ui/card"
-import { Label } from './label'
-import { Switch } from './switch'
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "./label";
+import { Switch } from "./switch";
 export type YearMonthSelectorProps = {
-  year: number
-  month: number
-  onYearChange: (year: number) => void
-  onMonthChange: (month: number) => void
-  isCurrentlyEmployed: boolean
-  onCurrentlyEmployedChange: (isCurrentlyEmployed: boolean) => void
-  type: string
-  className?: string
-}
+  year: number;
+  month: number;
+  onYearChange: (year: number) => void;
+  onMonthChange: (month: number) => void;
+  isCurrentlyEmployed: boolean;
+  onCurrentlyEmployedChange: (isCurrentlyEmployed: boolean) => void;
+  type: string;
+  className?: string;
+};
 
 export function YearMonthSelectorOptional({
   year,
@@ -38,15 +38,28 @@ export function YearMonthSelectorOptional({
   type,
   className,
 }: YearMonthSelectorProps) {
-  const startYear = 1950
-  const endYear = 2050
+  const startYear = 1950;
+  const endYear = 2050;
 
-  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i)
+  const years = Array.from(
+    { length: endYear - startYear + 1 },
+    (_, i) => startYear + i
+  );
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-  ]
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   return (
     <Card className={cn("w-full max-w-sm mx-auto", className)}>
@@ -62,7 +75,10 @@ export function YearMonthSelectorOptional({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Select value={year.toString()} onValueChange={(value) => onYearChange(parseInt(value))}>
+            <Select
+              value={year.toString()}
+              onValueChange={(value) => onYearChange(parseInt(value))}
+            >
               <SelectTrigger className="w-[120px]">
                 <SelectValue>{year}</SelectValue>
               </SelectTrigger>
@@ -86,11 +102,16 @@ export function YearMonthSelectorOptional({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <Select value={month.toString()} onValueChange={(value) => onMonthChange(parseInt(value))}>
+          <Select
+            value={month.toString()}
+            onValueChange={(value) => onMonthChange(parseInt(value))}
+          >
             <SelectTrigger className="w-full">
               <div className="flex items-center">
                 <Calendar className="mr-2 h-4 w-4 opacity-50" />
-                <SelectValue>{format(new Date(year, month - 1), 'MMMM')}</SelectValue>
+                <SelectValue>
+                  {format(new Date(year, month - 1), "MMMM")}
+                </SelectValue>
               </div>
             </SelectTrigger>
             <SelectContent>
@@ -102,20 +123,27 @@ export function YearMonthSelectorOptional({
             </SelectContent>
           </Select>
           <div className="flex items-center justify-between mb-4">
-              <Label htmlFor="currently-employed" className="text-sm font-medium">
-                Currently {type}
-              </Label>
-              <Switch
-                id="currently-employed"
-                checked={isCurrentlyEmployed}
-                onCheckedChange={onCurrentlyEmployedChange}
-              />
-            </div>
+            <Label htmlFor="currently-employed" className="text-sm font-medium">
+              {type}
+            </Label>
+            <Switch
+              id="currently-employed"
+              checked={isCurrentlyEmployed}
+              onCheckedChange={(isCurrentlyEmployed) => {
+                onCurrentlyEmployedChange(isCurrentlyEmployed);
+                if (!isCurrentlyEmployed) {
+                  const today = new Date();
+                  onYearChange(today.getFullYear());
+                  onMonthChange(today.getMonth() + 1); // Month is zero-based, so add 1
+                }
+              }}
+            />
+          </div>
         </div>
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          Selected: {format(new Date(year, month - 1), 'MMMM yyyy')}
+          Selected: {format(new Date(year, month - 1), "MMMM yyyy")}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
