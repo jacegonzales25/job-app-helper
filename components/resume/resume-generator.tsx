@@ -47,6 +47,8 @@ export default function ResumeGenerator() {
         if (userResume) {
           const { id: resumeId } = userResume;
           const resumeDetails = await getResumeDetails(resumeId);
+          console.log("Resume details:", resumeDetails);
+          console.log(userId);
 
           // Transform and set each section in Zustand store
           if (resumeDetails.personalInfo) {
