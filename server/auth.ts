@@ -18,37 +18,28 @@ export const authOptions: NextAuthOptions = {
   ],
   adapter: DrizzleAdapter(db), // Drizzle ORM adapter
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider && account?.providerAccountId && user.email) {
-        const oauthId = account.providerAccountId;
-        const oauthProvider = account.provider;
-        const email = user.email;
-
-        try {
-          await findOrCreateOAuthUser(email, oauthProvider, oauthId);
-        } catch (error) {
-          console.error("Error in findOrCreateOAuthUser:", error);
-          return false; // Reject sign-in if there's an error
-        }
-      }
+    async signIn({ user, account, profile }) {
+      console.log("SignIn callback:", { user, account, profile });
       return true;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
     async session({ session, token }) {
+      console.log("Session callback:", { session, token });
       if (session.user) {
         session.user.id = token.id as string;
       }
       return session;
     },
-  },
+    async jwt({ token, user }) {
+      console.log("JWT callback:", { token, user });
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+  },  
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/auth/signin",
   },
-  debug: true
+  debug: true,
 };
