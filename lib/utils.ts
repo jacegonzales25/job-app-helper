@@ -7,7 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export const parseDate = (date: Date) => {
   const parsedDate = new Date(date);
-  return (parsedDate)
-    ? parsedDate.toISOString()
-    : new Date().toISOString();
+  return parsedDate ? parsedDate.toISOString() : new Date().toISOString();
 };
+

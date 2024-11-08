@@ -92,44 +92,118 @@ type InsertProjects = typeof schema.projects.$inferInsert;
 type InsertEducation = typeof schema.education.$inferInsert;
 type InsertActivities = typeof schema.activities.$inferInsert;
 type InsertCertifications = typeof schema.certifications.$inferInsert;
+type User = typeof schema.users.$inferSelect;
 
-// OAuth: Find or create user
-export async function findOrCreateOAuthUser(email: string, provider: string, oauthId: string) {
+export async function findOrCreateOAuthUser(
+  email: string,
+  provider: string,
+  oauthId: string,
+  accessToken: string,
+  refreshToken?: string,
+  expiresAt?: Date // Optionally store token expiration time
+): Promise<User> {
   try {
     // Check if the user already exists
     const existingUser = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.email, email) && eq(users.oauthProvider, provider) && eq(users.oauthId, oauthId),
+      where: (users, { eq, and }) =>
+        and(
+          eq(users.email, email),
+          eq(users.oauthProvider, provider),
+          eq(users.oauthId, oauthId)
+        ),
     });
+
+    let user: User;
 
     if (existingUser) {
-      return existingUser; // If user exists, return it
+      user = existingUser;
+    } else {
+      // If user doesn't exist, create a new user
+      const insertedUsers = await db
+        .insert(schema.users)
+        .values({
+          email,
+          oauthProvider: provider,
+          oauthId,
+          createdAt: new Date(),
+        })
+        .returning(); // Ensure that you use .returning() to get the inserted rows
+
+      if (insertedUsers.length === 0) {
+        throw new Error("Failed to insert new user");
+      }
+
+      user = insertedUsers[0];
     }
 
-    // Create a new user if not found
-    const newUser = await db.insert(schema.users).values({
-      email,
-      oauthProvider: provider,
-      oauthId,
-      createdAt: new Date(),
+    // Store the OAuth tokens for the user in the oauthTokens table
+    const existingToken = await db.query.oauthTokens.findFirst({
+      where: (tokens, { eq }) => eq(tokens.userId, user.id),
     });
 
-    return newUser;
+    if (existingToken) {
+      // Update existing token if any changes are detected
+      await db
+        .update(schema.oauthTokens)
+        .set({
+          accessToken,
+          refreshToken,
+          expiresAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.oauthTokens.userId, user.id));
+    } else {
+      // Insert new token for the user
+      await db.insert(schema.oauthTokens).values({
+        userId: user.id,
+        accessToken,
+        refreshToken,
+        expiresAt,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    return user;
   } catch (error) {
-    console.error("Error during OAuth user creation:", error);
-    throw new Error("Failed to create or find OAuth user");
+    console.error("Error during OAuth user creation or token storage:", error);
+    throw new Error("Failed to create or find OAuth user and store tokens");
   }
 }
+
+// Fetch the OAuth token for the user
+export const getOAuthTokenForUser = async (userId: string) => {
+  const userIdAsNumber = Number(userId); // Convert string to number
+  if (isNaN(userIdAsNumber)) {
+    throw new Error("Invalid userId");
+  }
+
+  const oauthToken = await db.query.oauthTokens.findFirst({
+    where: (tokens, { eq }) => eq(tokens.userId, userIdAsNumber),
+  });
+
+  if (!oauthToken) {
+    throw new Error("OAuth token not found for user");
+  }
+
+  return oauthToken;
+};
 
 
 // Insert User
 export const insertUser = async (user: InsertUser) => {
   try {
-    return db.insert(schema.users).values(user);
+    const [insertedUser] = await db
+      .insert(schema.users)
+      .values(user)
+      .returning(); // This returns the inserted user with the generated id
+    return insertedUser;
   } catch (error) {
     console.error("Error inserting user:", error);
     throw new Error("Failed to insert user");
   }
 };
+
 // Insert Resume
 export const insertResume = async (resume: InsertResume) => {
   try {
