@@ -5,8 +5,14 @@ import { eq } from "drizzle-orm";
 
 export const db = drizzle(sql, { schema });
 
+// Fetch all users
 export const getUsers = async () => {
-  return db.query.users.findMany();
+  try {
+    return db.query.users.findMany();
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw new Error("Failed to fetch users");
+  }
 };
 
 // Queries
@@ -87,35 +93,53 @@ type InsertEducation = typeof schema.education.$inferInsert;
 type InsertActivities = typeof schema.activities.$inferInsert;
 type InsertCertifications = typeof schema.certifications.$inferInsert;
 
+// OAuth: Find or create user
 export async function findOrCreateOAuthUser(email: string, provider: string, oauthId: string) {
-  const existingUser = await db.query.users.findFirst({
-    where: (users, { eq }) => eq(users.email, email) && eq(users.oauthProvider, provider) && eq(users.oauthId, oauthId),
-  });
+  try {
+    // Check if the user already exists
+    const existingUser = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, email) && eq(users.oauthProvider, provider) && eq(users.oauthId, oauthId),
+    });
 
-  if (existingUser) {
-    return existingUser; // User already exists, return the user
+    if (existingUser) {
+      return existingUser; // If user exists, return it
+    }
+
+    // Create a new user if not found
+    const newUser = await db.insert(schema.users).values({
+      email,
+      oauthProvider: provider,
+      oauthId,
+      createdAt: new Date(),
+    });
+
+    return newUser;
+  } catch (error) {
+    console.error("Error during OAuth user creation:", error);
+    throw new Error("Failed to create or find OAuth user");
   }
-
-  // Otherwise, create a new user
-  const newUser = await db.insert(schema.users).values({
-    email,
-    oauthProvider: provider,
-    oauthId,
-    createdAt: new Date(),
-  });
-
-  return newUser;
 }
+
 
 // Insert User
 export const insertUser = async (user: InsertUser) => {
-  return db.insert(schema.users).values(user);
+  try {
+    return db.insert(schema.users).values(user);
+  } catch (error) {
+    console.error("Error inserting user:", error);
+    throw new Error("Failed to insert user");
+  }
 };
-
 // Insert Resume
 export const insertResume = async (resume: InsertResume) => {
-  return db.insert(schema.resumes).values(resume).returning();
+  try {
+    return db.insert(schema.resumes).values(resume).returning();
+  } catch (error) {
+    console.error("Error inserting resume:", error);
+    throw new Error("Failed to insert resume");
+  }
 };
+
 
 // Insert Personal Info
 export const insertPersonalInfo = async (personalInfo: InsertPersonalInfo) => {

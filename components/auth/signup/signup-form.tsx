@@ -61,8 +61,12 @@ export default function SignUpForm() {
           )}
         />
         {/* Submit Button */}
-        <Button type="submit" className="w-full">
-          Sign Up
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting} // Disable when submitting
+        >
+          {form.formState.isSubmitting ? "Submitting..." : "Sign Up"}
         </Button>
       </form>
     </Form>

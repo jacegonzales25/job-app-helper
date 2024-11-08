@@ -7,6 +7,7 @@ import {
   integer,
   boolean,
   date,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -26,6 +27,22 @@ export const users = pgTable(
     };
   }
 );
+
+export const oauthTokens = pgTable("oauth_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(), // Reference to the users table
+  accessToken: text("access_token").notNull(), // Access token from OAuth provider
+  refreshToken: text("refresh_token"), // Refresh token, nullable if not provided
+  expiresAt: timestamp("expires_at"), // Expiration timestamp for access token
+  createdAt: timestamp("created_at").defaultNow().notNull(), // When the token was created
+  updatedAt: timestamp("updated_at").defaultNow().notNull(), // When the token was last updated
+});
+
+export const oauthTokensRelations = relations(users, ({ many }) => ({
+  oauthTokens: many(oauthTokens),
+}));
 
 export const resumes = pgTable("resumes", {
   id: serial("id").primaryKey(),
@@ -80,7 +97,7 @@ export const skills = pgTable("skills", {
   id: serial("id").primaryKey(),
   resumeId: integer("resume_id").references(() => resumes.id), // Link to resume
   category: text("category").notNull(),
-  items: text("items").array().notNull(), // Could store skills as array
+  items: jsonb("items"), // Could store skills as array
 });
 
 export const education = pgTable("education", {
