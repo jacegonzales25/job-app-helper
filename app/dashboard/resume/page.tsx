@@ -1,6 +1,5 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
 import MultiStepForm from "@/components/multi-page/multi-page-form";
 import PersonalForm from "@/components/resume/personal-form";
 import EducationForm from "@/components/resume/education-form";
@@ -30,7 +29,6 @@ export default function Dashboard() {
   };
 
   return (
-    <SessionProvider>
       <div className="min-h-screen bg-gray-100">
         <MultiStepForm
           steps={steps}
@@ -38,6 +36,5 @@ export default function Dashboard() {
           onFormComplete={handleFormComplete}
         />
       </div>
-    </SessionProvider>
   );
 }

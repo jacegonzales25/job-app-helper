@@ -62,9 +62,12 @@ export default function AuthForm() {
         },
         body: JSON.stringify(values),
       });
-
+  
       if (response.ok) {
-        router.push("/dashboard");
+        const data = await response.json();
+        if (data.success && data.redirectUrl) {
+          router.push(data.redirectUrl); // Redirect to dashboard
+        }
       } else {
         const data = await response.json();
         if (data.error && Array.isArray(data.error)) {
@@ -83,7 +86,7 @@ export default function AuthForm() {
       setError("An unexpected error occurred");
     }
   }
-
+  
   // Handle OAuth redirection for Google and GitHub
   const handleOAuthRedirect = async (provider: "google" | "github") => {
     try {

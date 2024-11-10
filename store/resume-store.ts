@@ -137,7 +137,7 @@ export const useResumeStore = create<ResumeStore>((set) => ({
           skills: [
             {
               category: details.skills[0].category,
-              items: details.skills[0].items,
+              items: Array.isArray(details.skills[0].items) ? details.skills[0].items : [],
             },
           ],
         },

@@ -1,6 +1,6 @@
 // app/api/auth/signup/route.ts
 import { NextResponse } from "next/server";
-import { userSchema } from "@/components/auth/signup/signup-form";
+import { authSchema } from "@/server/definitions";
 import * as bcrypt from "bcrypt";
 import { db, insertUser } from "@/server/db";
 import { createSession } from "@/lib/session";
@@ -8,7 +8,7 @@ import { createSession } from "@/lib/session";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const validationResult = userSchema.safeParse(body);
+    const validationResult = authSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -47,10 +47,12 @@ export async function POST(request: Request) {
     const insertedUser = await insertUser(user);
 
     // Create session
-    const response = NextResponse.redirect("/dashboard"); // Redirect to dashboard
+    const response = NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` // Use environment variable for base URL
+    );
     await createSession(insertedUser.id, response);
 
-    return response;
+    return NextResponse.json({ success: true, redirectUrl: "/dashboard" });
   } catch (error) {
     console.error("Error during sign-up:", error);
     return NextResponse.json(

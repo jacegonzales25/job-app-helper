@@ -20,15 +20,31 @@ import ProjectForm from "./projects-form";
 import ActivitiesForm from "./activities-form";
 import CertificationsForm from "./certifications-form";
 import { getResumeDetails, getUserResume } from "@/server/db/db";
-import { useSession } from "next-auth/react";
 import { useResumeStore } from "@/store/resume-store";
 
 export default function ResumeGenerator() {
+  const [userId, setUserId] = useState<string | null>(null); // Track user ID
   const [hasResume, setHasResume] = useState(false); // State to track if there's an existing resume
   const [isFormOpen, setIsFormOpen] = useState(false); // State to track if the resume form is open
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
   const store = useResumeStore();
+
+  async function getUserId() {
+    try {
+      const response = await fetch("/api/auth/session");
+      const data = await response.json();
+      if (data.userId) {
+        setUserId(data.userId);
+      } else {
+        console.log("User not authenticated");
+      }
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+    }
+  }
+
+  useEffect(() => {
+    getUserId();
+  }, []);
 
   const handleOpenForm = () => {
     setIsFormOpen(true);
@@ -66,10 +82,11 @@ export default function ResumeGenerator() {
           if (resumeDetails.skills) {
             const skills = resumeDetails.skills.map((skill) => ({
               category: skill.category ?? "", // Ensure category is a string
-              items: skill.items ?? [], // Directly use the items array
+              items: Array.isArray(skill.items) ? skill.items : [], // Ensure items is an array of strings
             }));
             store.updateSkillsInfo({ skills });
           }
+          
 
           if (resumeDetails.education) {
             const education = resumeDetails.education.map((edu) => ({

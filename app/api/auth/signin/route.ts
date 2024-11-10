@@ -9,7 +9,7 @@ import {
   handleGoogleOAuthCallback,
   handleGithubOAuthCallback,
 } from "@/lib/session";
-import { userSchema } from "@/components/auth/signup/signup-form";
+import { authSchema } from "@/server/definitions";
 
 export async function POST(request: Request) {
   try {
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     // Validate email/password input for standard sign-in
-    const validationResult = userSchema.safeParse({ email, password });
+    const validationResult = authSchema.safeParse({ email, password });
     if (!validationResult.success) {
       return NextResponse.json(
         { error: validationResult.error.issues },
@@ -71,10 +71,11 @@ export async function POST(request: Request) {
     }
 
     // Create session for the user
-    const response = NextResponse.redirect("/dashboard"); // Redirect to dashboard
-    await createSession(user.id, response);
+    const response = NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` // Use environment variable for base URL
+    );    await createSession(user.id, response);
 
-    return response;
+    return NextResponse.json({ success: true, redirectUrl: "/dashboard" });
   } catch (error) {
     console.error("Error during sign-in:", error);
     return NextResponse.json(

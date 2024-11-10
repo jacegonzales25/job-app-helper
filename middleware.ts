@@ -14,7 +14,7 @@ export default async function middelware(req: NextRequest) {
     const session = await decrypt(cookie as string);
     // 3. If session is invalid, redirect to login
     if (!session?.userId) {
-      return NextResponse.redirect(new URL("/auth/login"));
+      return NextResponse.redirect(`${req.nextUrl.origin}/auth`);
     }
   }
   // 4. Render route

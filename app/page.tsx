@@ -9,7 +9,7 @@ export default function LandingDashboard() {
   const router = useRouter()
   
   const handleCTAClick = () => {
-    router.push("/auth/signup")
+    router.push("/auth")
   };
 
   return (

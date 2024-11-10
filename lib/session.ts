@@ -2,12 +2,10 @@ import "server-only";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import crypto from "crypto";
-import { sessions } from "@/server/db/schema"; // Import the sessions table
+import { sessions } from "@/server/db/schema";
 import * as db from "@/server/db"; // Your database instance
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import axios from "axios";
 
 // Secret key for JWT signing and verification
 const secretKey = process.env.SECRET_KEY;
@@ -28,7 +26,6 @@ const cookie = {
   },
   duration: 24 * 60 * 60 * 1000,
 };
-// Type assertion to avoid TypeScript error
 
 export async function encrypt(payload: JWTPayload) {
   const key = getKey();
@@ -51,22 +48,21 @@ export async function decrypt(session: string) {
   }
 }
 
-// Transition to stateful session handling as opposed to stateless JWT
-export async function createSession(
-  userId: number,
-  response?: NextResponse
-): Promise<string> {
-  const sessionToken = crypto.randomBytes(32).toString("hex");
+// Generate a simple random session token
+function generateSessionToken() {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+export async function createSession(userId: number, response?: NextResponse): Promise<string> {
+  const sessionToken = generateSessionToken();
   const expiresAt = new Date(Date.now() + cookie.duration);
 
-  // Store the session in the database
   await db.db.insert(sessions).values({
     userId,
     sessionToken,
     expiresAt,
   });
 
-  // Set the session token in the response cookie if response is provided
   response?.cookies.set(cookie.name, sessionToken, {
     ...cookie.options,
     expires: expiresAt,
@@ -74,24 +70,21 @@ export async function createSession(
 
   return sessionToken;
 }
+
 export async function verifySession() {
-  const sessionToken = cookies().get(cookie.name)?.value;
+  const sessionToken = cookies().get("session")?.value;
 
   if (!sessionToken) {
-    redirect("/auth/login");
+    return null;
   }
 
-  // Fetch the session from the database
   const session = await db.db.query.sessions.findFirst({
     where: (sessions, { eq }) => eq(sessions.sessionToken, sessionToken),
   });
 
   if (!session || session.expiresAt < new Date()) {
-    // Session is invalid or expired
-    redirect("/auth/login");
+    return null;
   }
-
-  // Optionally, refresh the session expiration here
 
   return { userId: session.userId };
 }
@@ -100,17 +93,14 @@ export async function deleteSession() {
   const sessionToken = cookies().get(cookie.name)?.value;
 
   if (sessionToken) {
-    // Delete the session from the database
     await db.db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
   }
 
-  // Delete the session cookie
   cookies().delete(cookie.name);
   redirect("/auth/login");
 }
 
-// OAuth 2.0 helper functions
-// Google OAuth Redirect
+// OAuth Redirect for Google
 export async function redirectToGoogleOAuth() {
   const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   googleAuthUrl.searchParams.append("client_id", process.env.GOOGLE_CLIENT_ID!);
@@ -124,14 +114,11 @@ export async function redirectToGoogleOAuth() {
 }
 
 // Google OAuth Callback
-export async function handleGoogleOAuthCallback(
-  code: string,
-  response: NextResponse
-) {
+export async function handleGoogleOAuthCallback(code: string, response: NextResponse) {
   return handleOAuthCallback("google", code, response);
 }
 
-// GitHub OAuth Redirect
+// OAuth Redirect for GitHub
 export async function redirectToGithubOAuth() {
   const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");
   githubAuthUrl.searchParams.append("client_id", process.env.GITHUB_CLIENT_ID!);
@@ -144,14 +131,11 @@ export async function redirectToGithubOAuth() {
 }
 
 // GitHub OAuth Callback
-export async function handleGithubOAuthCallback(
-  code: string,
-  response: NextResponse
-) {
+export async function handleGithubOAuthCallback(code: string, response: NextResponse) {
   return handleOAuthCallback("github", code, response);
 }
 
-// General OAuth Callback Handler for Google/GitHub
+// General OAuth Callback Handler
 async function handleOAuthCallback(
   provider: "google" | "github",
   code: string,
@@ -168,37 +152,35 @@ async function handleOAuthCallback(
         ? "https://www.googleapis.com/oauth2/v2/userinfo"
         : "https://api.github.com/user";
 
-    const tokenParams = {
-      client_id:
-        provider === "google"
-          ? process.env.GOOGLE_CLIENT_ID
-          : process.env.GITHUB_CLIENT_ID,
-      client_secret:
-        provider === "google"
-          ? process.env.GOOGLE_CLIENT_SECRET
-          : process.env.GITHUB_CLIENT_SECRET,
+    // Filter out undefined values
+    const tokenParams = Object.entries({
+      client_id: provider === "google" ? process.env.GOOGLE_CLIENT_ID : process.env.GITHUB_CLIENT_ID,
+      client_secret: provider === "google" ? process.env.GOOGLE_CLIENT_SECRET : process.env.GITHUB_CLIENT_SECRET,
       redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/${provider}`,
-      grant_type: provider === "google" ? "authorization_code" : undefined,
       code,
-    };
+      ...(provider === "google" && { grant_type: "authorization_code" }),
+    }).reduce((acc, [key, value]) => {
+      if (value !== undefined) acc[key] = value;
+      return acc;
+    }, {} as Record<string, string>);
 
     // Exchange code for access token
-    const tokenResponse = await axios.post(tokenUrl, null, {
-      params: tokenParams,
-      headers:
-        provider === "github" ? { Accept: "application/json" } : undefined,
+    const tokenResponse = await fetch(tokenUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(tokenParams),
     });
-    const access_token = tokenResponse.data.access_token;
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
 
-    // Fetch user info from provider
-    const userInfoResponse = await axios.get(userInfoUrl, {
-      headers: { Authorization: `Bearer ${access_token}` },
+    // Fetch user info
+    const userInfoResponse = await fetch(userInfoUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
-    const email =
-      provider === "google"
-        ? userInfoResponse.data.email
-        : userInfoResponse.data.email || userInfoResponse.data.login;
-    const oauthId = userInfoResponse.data.id;
+    const userInfo = await userInfoResponse.json();
+
+    const email = provider === "google" ? userInfo.email : userInfo.email || userInfo.login;
+    const oauthId = userInfo.id;
 
     // Find or create user
     let user = await db.db.query.users.findFirst({
