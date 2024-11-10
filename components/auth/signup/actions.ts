@@ -5,71 +5,72 @@ import * as bcrypt from "bcrypt";
 import * as db from "@/server/db";
 import * as schema from "@/server/db/schema";
 import { createSession } from "@/lib/session";
+import { insertSession } from "@/server/db"; // Ensure insertSession is properly imported
 
 type InsertUser = typeof schema.users.$inferInsert;
+type InsertSession = typeof schema.sessions.$inferInsert;
 
 export async function signUp(values: typeof userSchema) {
   // 1. Validate Fields
-
   const validationResult = userSchema.safeParse(values);
   if (!validationResult.success) {
-    // 400 Bad Request
     return {
       status: 400,
       error: validationResult.error.issues,
     };
   }
 
-  // 2. Create User (send confirmation email if scaling)
-  const existingUser = await db.db.query.users.findFirst({
-    where: (users, { eq }) => eq(users.email, email),
-  });
-
-  if (existingUser) {
-    return { status: 400, error: "User already exists" };
-  }
   const { email, password } = validationResult.data;
+
+  // 2. Check if the user already exists
   try {
     const existingUser = await db.db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, email),
     });
 
     if (existingUser) {
-      return {
-        status: 400,
-        error: "User already exists",
-      };
+      return { status: 400, error: "User already exists" };
     }
   } catch (error) {
     console.error("Error checking for existing user:", error);
-    return {
-      status: 500,
-      error: "Internal server error",
-    };
+    return { status: 500, error: "Internal server error" };
   }
 
+  // 3. Hash password and create the user
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  // 4. Prepare the User Object
   const user: InsertUser = {
     email,
     passwordHash: hashedPassword,
     createdAt: new Date(),
-    oauthProvider: null, // Since this is a sign-up with email/password
+    oauthProvider: null,
     oauthId: null,
-    // Add any other fields as per your schema, setting defaults if necessary
   };
 
+  let insertedUser;
   try {
-    const insertedUser = await db.insertUser(user);
-
-    // 5. Create session using the inserted user's id
-    await createSession(insertedUser.id);
+    // Insert the user in the database
+    insertedUser = await db.insertUser(user);
   } catch (error) {
     console.error("Error inserting user:", error);
-    return {
-      status: 500,
-      error: "Failed to create user",
-    };
+    return { status: 500, error: "Failed to create user" };
   }
+
+  // 4. Create session for the new user and store it in the database
+  try {
+    const sessionToken = await createSession(insertedUser.id);
+    const sessionData: InsertSession = {
+      userId: insertedUser.id,
+      sessionToken,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1-day expiration
+      createdAt: new Date(),
+    };
+
+    // Insert the session into the database
+    await insertSession(sessionData);
+  } catch (error) {
+    console.error("Error creating session:", error);
+    return { status: 500, error: "Failed to create session" };
+  }
+
+  return { status: 200, message: "User signed up successfully" };
 }

@@ -50,24 +50,25 @@ export async function decrypt(session: string) {
 }
 
 // Transition to stateful session handling as opposed to stateless JWT
-export async function createSession(userId: number, response: NextResponse) {
+export async function createSession(userId: number, response?: NextResponse): Promise<string> {
   const sessionToken = crypto.randomBytes(32).toString("hex");
-  const expires = new Date(Date.now() + cookie.duration);
+  const expiresAt = new Date(Date.now() + cookie.duration);
 
   // Store the session in the database
   await db.insert(sessions).values({
     userId,
     sessionToken,
-    expiresAt: expires,
+    expiresAt,
   });
 
-  // Set the session cookie in the response
-  response.cookies.set(cookie.name, sessionToken, {
+  // Set the session token in the response cookie if response is provided
+  response?.cookies.set(cookie.name, sessionToken, {
     ...cookie.options,
-    expires,
+    expires: expiresAt,
   });
-}
 
+  return sessionToken;
+}
 export async function verifySession() {
   const sessionToken = cookies().get(cookie.name)?.value;
 
