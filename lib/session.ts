@@ -4,9 +4,11 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import crypto from "crypto";
 import { sessions } from "@/server/db/schema"; // Import the sessions table
-import { db } from "@/server/db"; // Your database instance
+import * as db from "@/server/db"; // Your database instance
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import axios from "axios";
+
 // Secret key for JWT signing and verification
 const secretKey = process.env.SECRET_KEY;
 
@@ -50,12 +52,15 @@ export async function decrypt(session: string) {
 }
 
 // Transition to stateful session handling as opposed to stateless JWT
-export async function createSession(userId: number, response?: NextResponse): Promise<string> {
+export async function createSession(
+  userId: number,
+  response?: NextResponse
+): Promise<string> {
   const sessionToken = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + cookie.duration);
 
   // Store the session in the database
-  await db.insert(sessions).values({
+  await db.db.insert(sessions).values({
     userId,
     sessionToken,
     expiresAt,
@@ -77,7 +82,7 @@ export async function verifySession() {
   }
 
   // Fetch the session from the database
-  const session = await db.query.sessions.findFirst({
+  const session = await db.db.query.sessions.findFirst({
     where: (sessions, { eq }) => eq(sessions.sessionToken, sessionToken),
   });
 
@@ -96,10 +101,81 @@ export async function deleteSession() {
 
   if (sessionToken) {
     // Delete the session from the database
-    await db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
+    await db.db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
   }
 
   // Delete the session cookie
   cookies().delete(cookie.name);
   redirect("/auth/login");
+}
+
+// OAuth 2.0 helper functions
+export async function redirectToGoogleOAuth() {
+  const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  googleAuthUrl.searchParams.append("client_id", process.env.GOOGLE_CLIENT_ID!);
+  googleAuthUrl.searchParams.append(
+    "redirect_uri",
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google`
+  );
+  googleAuthUrl.searchParams.append("response_type", "code");
+  googleAuthUrl.searchParams.append("scope", "openid email profile");
+
+  return googleAuthUrl.toString(); // Return the URL to redirect to
+}
+
+export async function handleGoogleOAuthCallback(
+  code: string,
+  response: NextResponse
+) {
+  try {
+    const tokenResponse = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      null,
+      {
+        params: {
+          client_id: process.env.GOOGLE_CLIENT_ID,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET,
+          redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google`,
+          grant_type: "authorization_code",
+          code,
+        },
+      }
+    );
+
+    const { access_token } = tokenResponse.data;
+    const userInfoResponse = await axios.get(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: { Authorization: `Bearer ${access_token}` },
+      }
+    );
+    const { email, id: oauthId } = userInfoResponse.data;
+
+    let user = await db.db.query.users.findFirst({
+      where: (users, { eq, and }) =>
+        and(eq(users.email, email), eq(users.oauthProvider, "google")),
+    });
+
+    if (!user) {
+      user = await db.insertUser({
+        email,
+        oauthProvider: "google",
+        oauthId,
+        createdAt: new Date(),
+      });
+    }
+
+    const sessionToken = await createSession(user.id, response);
+    await db.insertSession({
+      userId: user.id,
+      sessionToken,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      createdAt: new Date(),
+    });
+
+    return { status: 200, message: "OAuth login successful" };
+  } catch (error) {
+    console.error("OAuth login error:", error);
+    return { status: 500, error: "OAuth login failed" };
+  }
 }

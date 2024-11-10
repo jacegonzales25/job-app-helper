@@ -13,46 +13,47 @@ import {
 } from "@/components/ui/card";
 import { FileText, PenTool, Download } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function LandingDashboard() {
-  const [showAuth, setShowAuth] = useState(false);
-
+  const router = useRouter()
+  
   const handleCTAClick = () => {
-    setShowAuth(true);
+    router.push("/auth/signup")
   };
 
-  if (showAuth) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <Card className="w-[350px]">
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Enter your credentials to access your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form>
-              <div className="grid w-full items-center gap-4">
-                <div className="flex flex-col space-y-1.5">
-                  <Input id="email" placeholder="Email" />
-                </div>
-                <div className="flex flex-col space-y-1.5">
-                  <Input id="password" type="password" placeholder="Password" />
-                </div>
-              </div>
-            </form>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => setShowAuth(false)}>
-              Cancel
-            </Button>
-            <Button>Sign In</Button>
-          </CardFooter>
-        </Card>
-      </div>
-    );
-  }
+  // if (showAuth) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-gray-100">
+  //       <Card className="w-[350px]">
+  //         <CardHeader>
+  //           <CardTitle>Sign In</CardTitle>
+  //           <CardDescription>
+  //             Enter your credentials to access your account
+  //           </CardDescription>
+  //         </CardHeader>
+  //         <CardContent>
+  //           <form>
+  //             <div className="grid w-full items-center gap-4">
+  //               <div className="flex flex-col space-y-1.5">
+  //                 <Input id="email" placeholder="Email" />
+  //               </div>
+  //               <div className="flex flex-col space-y-1.5">
+  //                 <Input id="password" type="password" placeholder="Password" />
+  //               </div>
+  //             </div>
+  //           </form>
+  //         </CardContent>
+  //         <CardFooter className="flex justify-between">
+  //           <Button variant="outline" onClick={() => setShowAuth(false)}>
+  //             Cancel
+  //           </Button>
+  //           <Button>Sign In</Button>
+  //         </CardFooter>
+  //       </Card>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
