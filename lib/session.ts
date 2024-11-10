@@ -2,6 +2,10 @@ import "server-only";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import crypto from "crypto";
+import { sessions } from "@/server/db/schema"; // Import the sessions table
+import { db } from "@/server/db"; // Your database instance
+import { eq } from "drizzle-orm";
 // Secret key for JWT signing and verification
 const secretKey = process.env.SECRET_KEY;
 
@@ -44,36 +48,55 @@ export async function decrypt(session: string) {
   }
 }
 
+// Transition to stateful session handling as opposed to stateless JWT
 export async function createSession(userId: number) {
-  // Implement session creation logic
+  const sessionToken = crypto.randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + cookie.duration);
-  const session = await encrypt({ userId, expires });
-  cookies().set(cookie.name, session, { ...cookie.options, expires });
+
+  // Store the session in the database
+  await db.insert(sessions).values({
+    userId,
+    sessionToken,
+    expiresAt: expires,
+  });
+
+  // Set the session cookie
+  cookies().set(cookie.name, sessionToken, { ...cookie.options, expires });
   redirect("/dashboard");
 }
 
 export async function verifySession() {
-  // Implement session verification logic
-  // Use a different variable name to avoid shadowing
-  const sessionCookie = cookies().get(cookie.name)?.value;
+  const sessionToken = cookies().get(cookie.name)?.value;
 
-  if (!sessionCookie) {
-    // If no cookie is found, redirect to login
-    redirect("/auth/login");
-    return;
-  }
-
-  const session = await decrypt(sessionCookie);
-
-  if (!session?.userId) {
+  if (!sessionToken) {
     redirect("/auth/login");
   }
+
+  // Fetch the session from the database
+  const session = await db.query.sessions.findFirst({
+    where: (sessions, { eq }) => eq(sessions.sessionToken, sessionToken),
+  });
+
+  if (!session || session.expiresAt < new Date()) {
+    // Session is invalid or expired
+    redirect("/auth/login");
+  }
+
+  // Optionally, refresh the session expiration here
 
   return { userId: session.userId };
 }
 
+
 export async function deleteSession() {
-  // Implement session deletion logic
+  const sessionToken = cookies().get(cookie.name)?.value;
+
+  if (sessionToken) {
+    // Delete the session from the database
+    await db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
+  }
+
+  // Delete the session cookie
   cookies().delete(cookie.name);
   redirect("/auth/login");
 }
