@@ -110,6 +110,7 @@ export async function deleteSession() {
 }
 
 // OAuth 2.0 helper functions
+// Google OAuth Redirect
 export async function redirectToGoogleOAuth() {
   const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   googleAuthUrl.searchParams.append("client_id", process.env.GOOGLE_CLIENT_ID!);
@@ -119,52 +120,102 @@ export async function redirectToGoogleOAuth() {
   );
   googleAuthUrl.searchParams.append("response_type", "code");
   googleAuthUrl.searchParams.append("scope", "openid email profile");
-
-  return googleAuthUrl.toString(); // Return the URL to redirect to
+  return googleAuthUrl.toString();
 }
 
+// Google OAuth Callback
 export async function handleGoogleOAuthCallback(
   code: string,
   response: NextResponse
 ) {
+  return handleOAuthCallback("google", code, response);
+}
+
+// GitHub OAuth Redirect
+export async function redirectToGithubOAuth() {
+  const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");
+  githubAuthUrl.searchParams.append("client_id", process.env.GITHUB_CLIENT_ID!);
+  githubAuthUrl.searchParams.append(
+    "redirect_uri",
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/github`
+  );
+  githubAuthUrl.searchParams.append("scope", "read:user user:email");
+  return githubAuthUrl.toString();
+}
+
+// GitHub OAuth Callback
+export async function handleGithubOAuthCallback(
+  code: string,
+  response: NextResponse
+) {
+  return handleOAuthCallback("github", code, response);
+}
+
+// General OAuth Callback Handler for Google/GitHub
+async function handleOAuthCallback(
+  provider: "google" | "github",
+  code: string,
+  response: NextResponse
+) {
   try {
-    const tokenResponse = await axios.post(
-      "https://oauth2.googleapis.com/token",
-      null,
-      {
-        params: {
-          client_id: process.env.GOOGLE_CLIENT_ID,
-          client_secret: process.env.GOOGLE_CLIENT_SECRET,
-          redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google`,
-          grant_type: "authorization_code",
-          code,
-        },
-      }
-    );
+    const tokenUrl =
+      provider === "google"
+        ? "https://oauth2.googleapis.com/token"
+        : "https://github.com/login/oauth/access_token";
 
-    const { access_token } = tokenResponse.data;
-    const userInfoResponse = await axios.get(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
-      }
-    );
-    const { email, id: oauthId } = userInfoResponse.data;
+    const userInfoUrl =
+      provider === "google"
+        ? "https://www.googleapis.com/oauth2/v2/userinfo"
+        : "https://api.github.com/user";
 
+    const tokenParams = {
+      client_id:
+        provider === "google"
+          ? process.env.GOOGLE_CLIENT_ID
+          : process.env.GITHUB_CLIENT_ID,
+      client_secret:
+        provider === "google"
+          ? process.env.GOOGLE_CLIENT_SECRET
+          : process.env.GITHUB_CLIENT_SECRET,
+      redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/${provider}`,
+      grant_type: provider === "google" ? "authorization_code" : undefined,
+      code,
+    };
+
+    // Exchange code for access token
+    const tokenResponse = await axios.post(tokenUrl, null, {
+      params: tokenParams,
+      headers:
+        provider === "github" ? { Accept: "application/json" } : undefined,
+    });
+    const access_token = tokenResponse.data.access_token;
+
+    // Fetch user info from provider
+    const userInfoResponse = await axios.get(userInfoUrl, {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    const email =
+      provider === "google"
+        ? userInfoResponse.data.email
+        : userInfoResponse.data.email || userInfoResponse.data.login;
+    const oauthId = userInfoResponse.data.id;
+
+    // Find or create user
     let user = await db.db.query.users.findFirst({
       where: (users, { eq, and }) =>
-        and(eq(users.email, email), eq(users.oauthProvider, "google")),
+        and(eq(users.email, email), eq(users.oauthProvider, provider)),
     });
 
     if (!user) {
       user = await db.insertUser({
         email,
-        oauthProvider: "google",
+        oauthProvider: provider,
         oauthId,
         createdAt: new Date(),
       });
     }
 
+    // Create session for user
     const sessionToken = await createSession(user.id, response);
     await db.insertSession({
       userId: user.id,
@@ -173,9 +224,9 @@ export async function handleGoogleOAuthCallback(
       createdAt: new Date(),
     });
 
-    return { status: 200, message: "OAuth login successful" };
+    return { status: 200, message: `${provider} OAuth login successful` };
   } catch (error) {
-    console.error("OAuth login error:", error);
-    return { status: 500, error: "OAuth login failed" };
+    console.error(`${provider} OAuth login error:`, error);
+    return { status: 500, error: `${provider} OAuth login failed` };
   }
 }
