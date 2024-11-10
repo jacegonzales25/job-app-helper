@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export const userSchema = z.object({
   email: z.string().email(),
@@ -23,15 +25,47 @@ export default function SignUpForm() {
     resolver: zodResolver(userSchema),
   });
 
-  function onSubmit(values: z.infer<typeof userSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function signUp(values: z.infer<typeof userSchema>) {
+    setError(null);
+
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (response.ok) {
+        // If sign-up was successful, redirect to dashboard
+        router.push("/dashboard");
+      } else {
+        const data = await response.json();
+        // Handle validation errors from the server
+        if (data.error && Array.isArray(data.error)) {
+          data.error.forEach((issue: any) => {
+            form.setError(issue.path[0], {
+              type: "server",
+              message: issue.message,
+            });
+          });
+        } else {
+          setError(data.error || "An error occurred");
+        }
+      }
+    } catch (error) {
+      console.error("An unexpected error occurred:", error);
+      setError("An unexpected error occurred");
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(signUp)} className="space-y-4">
         {/* Email Field */}
         <FormField
           control={form.control}
@@ -60,6 +94,8 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
+        {/* Error Message */}
+        {error && <p className="text-red-500">{error}</p>}
         {/* Submit Button */}
         <Button
           type="submit"

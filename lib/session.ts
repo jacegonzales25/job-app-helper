@@ -6,6 +6,7 @@ import crypto from "crypto";
 import { sessions } from "@/server/db/schema"; // Import the sessions table
 import { db } from "@/server/db"; // Your database instance
 import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 // Secret key for JWT signing and verification
 const secretKey = process.env.SECRET_KEY;
 
@@ -49,7 +50,7 @@ export async function decrypt(session: string) {
 }
 
 // Transition to stateful session handling as opposed to stateless JWT
-export async function createSession(userId: number) {
+export async function createSession(userId: number, response: NextResponse) {
   const sessionToken = crypto.randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + cookie.duration);
 
@@ -60,9 +61,11 @@ export async function createSession(userId: number) {
     expiresAt: expires,
   });
 
-  // Set the session cookie
-  cookies().set(cookie.name, sessionToken, { ...cookie.options, expires });
-  redirect("/dashboard");
+  // Set the session cookie in the response
+  response.cookies.set(cookie.name, sessionToken, {
+    ...cookie.options,
+    expires,
+  });
 }
 
 export async function verifySession() {
@@ -86,7 +89,6 @@ export async function verifySession() {
 
   return { userId: session.userId };
 }
-
 
 export async function deleteSession() {
   const sessionToken = cookies().get(cookie.name)?.value;

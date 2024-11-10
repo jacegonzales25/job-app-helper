@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import * as schema from "./schema";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 
 export const db = drizzle(sql, { schema });
 
@@ -93,6 +93,7 @@ type InsertEducation = typeof schema.education.$inferInsert;
 type InsertActivities = typeof schema.activities.$inferInsert;
 type InsertCertifications = typeof schema.certifications.$inferInsert;
 type User = typeof schema.users.$inferSelect;
+type InsertSession = typeof schema.sessions.$inferInsert;
 
 export async function findOrCreateOAuthUser(
   email: string,
@@ -189,7 +190,6 @@ export const getOAuthTokenForUser = async (userId: string) => {
   return oauthToken;
 };
 
-
 // Insert User
 export const insertUser = async (user: InsertUser) => {
   try {
@@ -213,7 +213,6 @@ export const insertResume = async (resume: InsertResume) => {
     throw new Error("Failed to insert resume");
   }
 };
-
 
 // Insert Personal Info
 export const insertPersonalInfo = async (personalInfo: InsertPersonalInfo) => {
@@ -434,3 +433,25 @@ export const deleteCertification = async (certificationId: number) => {
     .returning(); // Return deleted certification data if needed
 };
 
+// Session management
+// Insert Session
+export const insertSession = async (sessionData: InsertSession) => {
+  try {
+    await db.insert(schema.sessions).values(sessionData);
+  } catch (error) {
+    console.error("Error inserting session:", error);
+    throw new Error("Failed to insert session");
+  }
+};
+
+// Clean up expired sessions (optional)
+export const cleanUpExpiredSessions = async () => {
+  try {
+    await db
+      .delete(schema.sessions)
+      .where(lt(schema.sessions.expiresAt, new Date()));
+  } catch (error) {
+    console.error("Error cleaning up sessions:", error);
+    throw new Error("Failed to clean up sessions");
+  }
+};
