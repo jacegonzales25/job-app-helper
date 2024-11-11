@@ -69,16 +69,21 @@ export default function AuthForm() {
           router.push(data.redirectUrl); // Redirect to dashboard
         }
       } else {
-        const data = await response.json();
-        if (data.error && Array.isArray(data.error)) {
-          data.error.forEach((issue: any) => {
-            form.setError(issue.path[0] as "email" | "password", {
-              type: "server",
-              message: issue.message,
+        // Try to parse error as JSON, if available
+        try {
+          const data = await response.json();
+          if (data.error && Array.isArray(data.error)) {
+            data.error.forEach((issue: any) => {
+              form.setError(issue.path[0] as "email" | "password", {
+                type: "server",
+                message: issue.message,
+              });
             });
-          });
-        } else {
-          setError(data.error || `An error occurred during ${action}`);
+          } else {
+            setError(data.error || `An error occurred during ${action}`);
+          }
+        } catch {
+          setError("An unexpected error occurred"); // Non-JSON error
         }
       }
     } catch (error) {
@@ -99,10 +104,10 @@ export default function AuthForm() {
       }
     } catch (error) {
       console.error(`${provider} OAuth error:`, error);
-      setError("An unexpected error occurred");
+      setError("An unexpected error occurred during OAuth");
     }
   };
-
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md">
