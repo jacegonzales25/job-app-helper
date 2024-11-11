@@ -40,12 +40,15 @@ export const certificationsSchema = z.object({
 });
 
 export default function CertificationsForm() {
-  const store = useResumeStore();
-  const updateCertificationsInfo = store.updateCertificationsInfo;
-
+  const { certificationsInfo, updateCertificationsInfo } = useResumeStore(
+    (state) => ({
+      certificationsInfo: state.certificationsInfo,
+      updateCertificationsInfo: state.updateCertificationsInfo,
+    })
+  );
   const transformedCertificationsData = {
     certifications:
-      store.certificationsInfo?.certifications?.map((cert) => ({
+      certificationsInfo?.certifications?.map((cert) => ({
         ...cert,
         from: cert.from instanceof Date ? cert.from : new Date(cert.from),
         to: cert.to

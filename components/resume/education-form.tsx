@@ -33,12 +33,14 @@ export const educationSchema = z.object({
 });
 
 export default function EducationForm() {
-  const store = useResumeStore();
-  const updateEducationInfo = store.updateEducationInfo;
+  const { educationInfo, updateEducationInfo } = useResumeStore((state) => ({
+    educationInfo: state.educationInfo,
+    updateEducationInfo: state.updateEducationInfo,
+  }));
 
   const transformedEducationData = {
     education:
-      store.educationInfo?.education.map((edu) => ({
+      educationInfo?.education?.map((edu) => ({
         ...edu,
         from: edu.from instanceof Date ? edu.from : new Date(edu.from),
         to: edu.to instanceof Date ? edu.to : new Date(edu.to),
@@ -73,7 +75,9 @@ export default function EducationForm() {
                 ? edu.from
                 : new Date(edu?.from || Date.now()),
             to:
-              edu?.to instanceof Date ? edu.to : new Date(edu?.to || Date.now()),
+              edu?.to instanceof Date
+                ? edu.to
+                : new Date(edu?.to || Date.now()),
           })) || [], // Ensure education is always an array
       };
       updateEducationInfo(filledValues);

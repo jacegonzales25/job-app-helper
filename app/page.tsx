@@ -6,10 +6,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function LandingDashboard() {
-  const router = useRouter()
-  
+  const router = useRouter();
+
   const handleCTAClick = () => {
-    router.push("/auth")
+    router.push("/dashboard");
   };
 
   return (

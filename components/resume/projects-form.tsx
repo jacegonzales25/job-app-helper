@@ -36,20 +36,23 @@ export const projectSchema = z.object({
 });
 
 export default function ProjectForm() {
-  const store = useResumeStore();
-  const updateProjectsInfo = store.updateProjectsInfo;
+  const { projectsInfo, updateProjectsInfo } = useResumeStore((state) => ({
+    projectsInfo: state.projectsInfo,
+    updateProjectsInfo: state.updateProjectsInfo,
+  }));
 
   const transformedProjectsData = {
     projects:
-      store.projectsInfo?.projects.map((project) => ({
+      projectsInfo?.projects?.map((project) => ({
         ...project,
         from:
           project.from instanceof Date ? project.from : new Date(project.from),
-        to: project.to
-          ? project.to instanceof Date
+        to:
+          project.to instanceof Date
             ? project.to
-            : new Date(project.to)
-          : undefined,
+            : project.to
+            ? new Date(project.to)
+            : undefined,
       })) || [],
   };
 

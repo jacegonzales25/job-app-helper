@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AI Job Helper",
-  description: "Generate resume using AI",
+  title: "Resume Builder",
+  description: "Generate professional ATS-friendly resume",
 };
 
 export default function RootLayout({

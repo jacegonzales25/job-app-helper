@@ -31,15 +31,15 @@ export const skillsSchema = z.object({
 });
 
 export default function SkillsForm() {
-  const store = useResumeStore();
-  const skillsInfo = store.skillsInfo || { skills: [] };
-  const updateSkillsInfo = store.updateSkillsInfo;
+  const { skillsInfo, updateSkillsInfo } = useResumeStore((state) => ({
+    skillsInfo: state.skillsInfo || { skills: [] }, // Default to an empty array if skillsInfo is null
+    updateSkillsInfo: state.updateSkillsInfo,
+  }));
 
-  // Maintain Zustand state as default values
   const form = useForm<z.infer<typeof skillsSchema>>({
     mode: "onChange",
     resolver: zodResolver(skillsSchema),
-    defaultValues: { skills: skillsInfo.skills },
+    defaultValues: { skills: skillsInfo.skills || [] },
   });
 
   const {
@@ -55,16 +55,16 @@ export default function SkillsForm() {
     // Watch the form and update Zustand store whenever there's a change
     const subscription = form.watch((values) => {
       const filledValues = {
-        skills: values.skills?.map((skill) => ({
-          category: skill?.category || "",
-          items: (skill?.items || []).filter(Boolean) as string[], // Ensure items is an array of strings only
-        })) || [],
+        skills:
+          values.skills?.map((skill) => ({
+            category: skill?.category || "",
+            items: (skill?.items || []).filter(Boolean) as string[], // Ensure items is an array of strings only
+          })) || [],
       };
       updateSkillsInfo(filledValues);
     });
     return () => subscription.unsubscribe();
   }, [form, updateSkillsInfo]);
-  
 
   // Use individual state per input for adding new skills in categories
   const [newSkill, setNewSkill] = useState<string[]>([]);

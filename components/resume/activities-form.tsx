@@ -21,6 +21,7 @@ import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
 
+// Define the schema for activities
 export const activitiesSchema = z.object({
   activities: z
     .array(
@@ -38,12 +39,15 @@ export const activitiesSchema = z.object({
 });
 
 export default function ActivitiesForm() {
-  const store = useResumeStore();
-  const updateActivitiesInfo = store.updateActivitiesInfo;
+  const { activitiesInfo, updateActivitiesInfo } = useResumeStore((state) => ({
+    activitiesInfo: state.activitiesInfo,
+    updateActivitiesInfo: state.updateActivitiesInfo,
+  }));
 
+  // Transform existing activities to ensure date format
   const transformedActivitiesData = {
     activities:
-      store.activitiesInfo?.activities?.map((activity) => ({
+      activitiesInfo?.activities?.map((activity) => ({
         ...activity,
         from:
           activity.from instanceof Date
@@ -57,9 +61,9 @@ export default function ActivitiesForm() {
       })) || [],
   };
 
+  // Set up form handling with React Hook Form
   const form = useForm<z.infer<typeof activitiesSchema>>({
     mode: "onSubmit",
-    shouldUnregister: false,
     resolver: zodResolver(activitiesSchema),
     defaultValues: transformedActivitiesData,
   });
@@ -73,11 +77,12 @@ export default function ActivitiesForm() {
     name: "activities",
   });
 
+  // Sync form changes to Zustand store
   useEffect(() => {
-    const subscription =
-      form.watch((values) => {
-        const filledValues = {
-          activities: values.activities?.map((activity) => ({
+    const subscription = form.watch((values) => {
+      const filledValues = {
+        activities:
+          values.activities?.map((activity) => ({
             name: activity?.name || "",
             role: activity?.role || "",
             from:
@@ -86,15 +91,15 @@ export default function ActivitiesForm() {
                 : new Date(activity?.from || Date.now()),
             to: activity?.to instanceof Date ? activity.to : undefined,
             description: activity?.description || "",
-          })),
-        };
-        updateActivitiesInfo(filledValues);
-      }) || [];
+          })) || [], // Ensure activities is always an array
+      };
+      updateActivitiesInfo(filledValues);
+    });
     return () => subscription.unsubscribe();
   }, [form, updateActivitiesInfo]);
 
   function onSubmit(values: z.infer<typeof activitiesSchema>) {
-    updateActivitiesInfo(values);
+    updateActivitiesInfo(values); // Updates Zustand store with form data
     console.log("Form Submitted: ", values);
   }
 

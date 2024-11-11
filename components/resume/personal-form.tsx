@@ -26,8 +26,13 @@ export const personalInfoSchema = z.object({
 });
 
 export default function PersonalForm() {
-  const store = useResumeStore();
-  const personalInfoData = store.personalInfo;
+  const { personalInfo: personalInfoData, updatePersonalInfo } = useResumeStore(
+    (state) => ({
+      personalInfo: state.personalInfo,
+      updatePersonalInfo: state.updatePersonalInfo,
+    })
+  );
+
   const form = useForm<z.infer<typeof personalInfoSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
@@ -53,14 +58,14 @@ export default function PersonalForm() {
         linkedIn: values.linkedIn ?? "",
       };
 
-      store.updatePersonalInfo(filledValues);
+      updatePersonalInfo(filledValues);
     });
 
     return () => subscription.unsubscribe();
-  }, [form, store]);
+  }, [form, updatePersonalInfo]);
 
   function onSubmit(values: z.infer<typeof personalInfoSchema>) {
-    store.updatePersonalInfo(values);
+    updatePersonalInfo(values);
     console.log("Form Submitted: ", values);
   }
 

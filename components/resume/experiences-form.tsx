@@ -36,22 +36,27 @@ export const experienceSchema = z.object({
 });
 
 export default function ExperienceForm() {
-  const store = useResumeStore();
-  const updateExperienceInfo = store.updateExperienceInfo;
+  const { experienceInfo, updateExperienceInfo } = useResumeStore((state) => ({
+    experienceInfo: state.experienceInfo,
+    updateExperienceInfo: state.updateExperienceInfo,
+  }));
 
+  
   const transformedExperienceData = {
     experiences:
-      store.experienceInfo?.experiences.map((exp) => ({
-        ...exp,
-        from: exp.from instanceof Date ? exp.from : new Date(exp.from),
-        to: exp.to
-          ? exp.to instanceof Date
-            ? exp.to
-            : new Date(exp.to)
+      experienceInfo?.experiences?.map((experiences) => ({
+        ...experiences,
+        from:
+          experiences.from instanceof Date
+            ? experiences.from
+            : new Date(experiences.from),
+        to: experiences.to
+          ? experiences.to instanceof Date
+            ? experiences.to
+            : new Date(experiences.to)
           : undefined,
       })) || [],
   };
-
   const form = useForm<z.infer<typeof experienceSchema>>({
     mode: "onChange",
     shouldUnregister: false,
