@@ -29,12 +29,12 @@ export default function Dashboard() {
   };
 
   return (
-      <div className="min-h-screen bg-gray-100">
-        <MultiStepForm
-          steps={steps}
-          onStepComplete={handleStepComplete}
-          onFormComplete={handleFormComplete}
-        />
-      </div>
+    <div className="min-h-screen bg-gray-100">
+      <MultiStepForm
+        steps={steps}
+        onStepComplete={handleStepComplete}
+        onFormComplete={handleFormComplete}
+      />
+    </div>
   );
 }

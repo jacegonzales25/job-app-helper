@@ -52,7 +52,10 @@ export async function POST(request: Request) {
     );
     await createSession(insertedUser.id, response);
 
-    return NextResponse.json({ success: true, redirectUrl: "/dashboard" });
+    return NextResponse.json({
+      success: true,
+      redirectUrl: "https://job-app-helper.vercel.app/",
+    });
   } catch (error) {
     console.error("Error during sign-up:", error);
     return NextResponse.json(

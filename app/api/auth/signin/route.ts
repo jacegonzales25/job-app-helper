@@ -73,9 +73,13 @@ export async function POST(request: Request) {
     // Create session for the user
     const response = NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` // Use environment variable for base URL
-    );    await createSession(user.id, response);
+    );
+    await createSession(user.id, response);
 
-    return NextResponse.json({ success: true, redirectUrl: "/dashboard" });
+    return NextResponse.json({
+      success: true,
+      redirectUrl: "https://job-app-helper.vercel.app//dashboard",
+    });
   } catch (error) {
     console.error("Error during sign-in:", error);
     return NextResponse.json(
