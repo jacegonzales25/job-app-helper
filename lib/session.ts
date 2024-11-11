@@ -3,7 +3,7 @@ import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { sessions } from "@/server/db/schema";
-import * as db from "@/server/db"; // Your database instance
+import * as db from "@/server/db";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
@@ -63,10 +63,12 @@ export async function createSession(userId: number, response?: NextResponse): Pr
     expiresAt,
   });
 
-  response?.cookies.set(cookie.name, sessionToken, {
-    ...cookie.options,
-    expires: expiresAt,
-  });
+  if (response) {
+    response.cookies.set(cookie.name, sessionToken, {
+      ...cookie.options,
+      expires: expiresAt,
+    });
+  }
 
   return sessionToken;
 }

@@ -78,7 +78,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      redirectUrl: "https://job-app-helper.vercel.app//dashboard",
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
     });
   } catch (error) {
     console.error("Error during sign-in:", error);
