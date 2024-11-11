@@ -105,7 +105,7 @@ export async function deleteSession() {
   }
 
   cookies().delete(cookie.name);
-  redirect("/auth/login");
+  redirect("/auth");
 }
 
 // OAuth Redirect for Google
