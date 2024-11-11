@@ -21,7 +21,7 @@ const cookie = {
   options: {
     httpOnly: true,
     secure: true,
-    sameSite: "lax" as "lax",
+    sameSite: "none" as "none",
     path: "/",
   },
   duration: 24 * 60 * 60 * 1000,
@@ -53,7 +53,10 @@ function generateSessionToken() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
-export async function createSession(userId: number, response?: NextResponse): Promise<string> {
+export async function createSession(
+  userId: number,
+  response?: NextResponse
+): Promise<string> {
   const sessionToken = generateSessionToken();
   const expiresAt = new Date(Date.now() + cookie.duration);
 
@@ -63,11 +66,14 @@ export async function createSession(userId: number, response?: NextResponse): Pr
     expiresAt,
   });
 
+  // Manually setting cookie for working
   if (response) {
-    response.cookies.set(cookie.name, sessionToken, {
-      ...cookie.options,
-      expires: expiresAt,
-    });
+    response.headers.append(
+      "Set-Cookie",
+      `session=${sessionToken}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${
+        cookie.duration / 1000
+      }`
+    );
   }
 
   return sessionToken;
@@ -116,7 +122,10 @@ export async function redirectToGoogleOAuth() {
 }
 
 // Google OAuth Callback
-export async function handleGoogleOAuthCallback(code: string, response: NextResponse) {
+export async function handleGoogleOAuthCallback(
+  code: string,
+  response: NextResponse
+) {
   return handleOAuthCallback("google", code, response);
 }
 
@@ -133,7 +142,10 @@ export async function redirectToGithubOAuth() {
 }
 
 // GitHub OAuth Callback
-export async function handleGithubOAuthCallback(code: string, response: NextResponse) {
+export async function handleGithubOAuthCallback(
+  code: string,
+  response: NextResponse
+) {
   return handleOAuthCallback("github", code, response);
 }
 
@@ -156,8 +168,14 @@ async function handleOAuthCallback(
 
     // Filter out undefined values
     const tokenParams = Object.entries({
-      client_id: provider === "google" ? process.env.GOOGLE_CLIENT_ID : process.env.GITHUB_CLIENT_ID,
-      client_secret: provider === "google" ? process.env.GOOGLE_CLIENT_SECRET : process.env.GITHUB_CLIENT_SECRET,
+      client_id:
+        provider === "google"
+          ? process.env.GOOGLE_CLIENT_ID
+          : process.env.GITHUB_CLIENT_ID,
+      client_secret:
+        provider === "google"
+          ? process.env.GOOGLE_CLIENT_SECRET
+          : process.env.GITHUB_CLIENT_SECRET,
       redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/${provider}`,
       code,
       ...(provider === "google" && { grant_type: "authorization_code" }),
@@ -181,7 +199,8 @@ async function handleOAuthCallback(
     });
     const userInfo = await userInfoResponse.json();
 
-    const email = provider === "google" ? userInfo.email : userInfo.email || userInfo.login;
+    const email =
+      provider === "google" ? userInfo.email : userInfo.email || userInfo.login;
     const oauthId = userInfo.id;
 
     // Find or create user

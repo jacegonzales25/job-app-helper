@@ -71,15 +71,9 @@ export async function POST(request: Request) {
     }
 
     // Create session for the user
-    const response = NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` // Use environment variable for base URL
-    );
+    const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`);
     await createSession(user.id, response);
-
-    return NextResponse.json({
-      success: true,
-      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-    });
+    return response;
   } catch (error) {
     console.error("Error during sign-in:", error);
     return NextResponse.json(
