@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,8 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "@/components/ui/year-month";
+import { useResumeStore } from "@/store/resume-store";
 
 export const educationSchema = z.object({
   education: z.array(
@@ -33,24 +32,9 @@ export const educationSchema = z.object({
 });
 
 export default function EducationForm() {
-  const { educationInfo, updateEducationInfo } = useResumeStore((state) => ({
-    educationInfo: state.educationInfo,
-    updateEducationInfo: state.updateEducationInfo,
-  }));
-
-  const transformedEducationData = {
-    education:
-      educationInfo?.education?.map((edu) => ({
-        ...edu,
-        from: edu.from instanceof Date ? edu.from : new Date(edu.from),
-        to: edu.to instanceof Date ? edu.to : new Date(edu.to),
-      })) || [],
-  };
-
   const form = useForm<z.infer<typeof educationSchema>>({
-    mode: "onChange",
+    mode: "onSubmit",
     resolver: zodResolver(educationSchema),
-    defaultValues: transformedEducationData,
   });
 
   const {
@@ -62,32 +46,12 @@ export default function EducationForm() {
     name: "education",
   });
 
-  // Update Zustand store when form data changes
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      const filledValues = {
-        education:
-          values.education?.map((edu) => ({
-            school: edu?.school || "",
-            degree: edu?.degree || "",
-            from:
-              edu?.from instanceof Date
-                ? edu.from
-                : new Date(edu?.from || Date.now()),
-            to:
-              edu?.to instanceof Date
-                ? edu.to
-                : new Date(edu?.to || Date.now()),
-          })) || [], // Ensure education is always an array
-      };
-      updateEducationInfo(filledValues);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, updateEducationInfo]);
+  const updateEducationInfo = useResumeStore(
+    (state) => state.updateEducationInfo
+  );
 
-  function onSubmit(values: z.infer<typeof educationSchema>) {
-    updateEducationInfo(values);
-    console.log("Form Submitted: ", values);
+  function onSubmit(data: z.infer<typeof educationSchema>) {
+    updateEducationInfo(data);
   }
 
   return (

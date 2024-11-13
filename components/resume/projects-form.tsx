@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,9 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
+import { useResumeStore } from "@/store/resume-store";
 
 export const projectSchema = z.object({
   projects: z.array(
@@ -36,31 +35,9 @@ export const projectSchema = z.object({
 });
 
 export default function ProjectForm() {
-  const { projectsInfo, updateProjectsInfo } = useResumeStore((state) => ({
-    projectsInfo: state.projectsInfo,
-    updateProjectsInfo: state.updateProjectsInfo,
-  }));
-
-  const transformedProjectsData = {
-    projects:
-      projectsInfo?.projects?.map((project) => ({
-        ...project,
-        from:
-          project.from instanceof Date ? project.from : new Date(project.from),
-        to:
-          project.to instanceof Date
-            ? project.to
-            : project.to
-            ? new Date(project.to)
-            : undefined,
-      })) || [],
-  };
-
   const form = useForm<z.infer<typeof projectSchema>>({
-    mode: "onChange",
-    shouldUnregister: false,
+    mode: "onSubmit",
     resolver: zodResolver(projectSchema),
-    defaultValues: transformedProjectsData,
   });
 
   const {
@@ -72,31 +49,12 @@ export default function ProjectForm() {
     name: "projects",
   });
 
-  // Sync with Zustand store whenever form data changes
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      const filledValues = {
-        projects:
-          values.projects?.map((project) => ({
-            ...project,
-            name: project?.name || "",
-            description: project?.description || "",
-            from:
-              project?.from instanceof Date
-                ? project.from
-                : new Date(project?.from || Date.now()),
-            to: project?.to instanceof Date ? project.to : undefined,
-            companyName: project?.companyName || "",
-          })) || [],
-      };
-      updateProjectsInfo(filledValues);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, updateProjectsInfo]);
+  const updateProjectsInfo = useResumeStore(
+    (state) => state.updateProjectsInfo
+  );
 
-  function onSubmit(values: z.infer<typeof projectSchema>) {
-    updateProjectsInfo(values);
-    console.log("Form Submitted: ", values);
+  function onSubmit(data: z.infer<typeof projectSchema>) {
+    updateProjectsInfo(data);
   }
 
   return (

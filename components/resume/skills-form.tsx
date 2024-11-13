@@ -1,9 +1,7 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -16,8 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2, X } from "lucide-react";
-import { useResumeStore } from "@/store/resume-store";
 import { Badge } from "@/components/ui/badge";
+import { useResumeStore } from "@/store/resume-store";
 
 export const skillsSchema = z.object({
   skills: z.array(
@@ -31,15 +29,9 @@ export const skillsSchema = z.object({
 });
 
 export default function SkillsForm() {
-  const { skillsInfo, updateSkillsInfo } = useResumeStore((state) => ({
-    skillsInfo: state.skillsInfo || { skills: [] }, // Default to an empty array if skillsInfo is null
-    updateSkillsInfo: state.updateSkillsInfo,
-  }));
-
   const form = useForm<z.infer<typeof skillsSchema>>({
     mode: "onChange",
     resolver: zodResolver(skillsSchema),
-    defaultValues: { skills: skillsInfo.skills || [] },
   });
 
   const {
@@ -51,22 +43,6 @@ export default function SkillsForm() {
     name: "skills",
   });
 
-  useEffect(() => {
-    // Watch the form and update Zustand store whenever there's a change
-    const subscription = form.watch((values) => {
-      const filledValues = {
-        skills:
-          values.skills?.map((skill) => ({
-            category: skill?.category || "",
-            items: (skill?.items || []).filter(Boolean) as string[], // Ensure items is an array of strings only
-          })) || [],
-      };
-      updateSkillsInfo(filledValues);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, updateSkillsInfo]);
-
-  // Use individual state per input for adding new skills in categories
   const [newSkill, setNewSkill] = useState<string[]>([]);
 
   const addSkillItem = (index: number) => {
@@ -77,7 +53,6 @@ export default function SkillsForm() {
         newSkill[index].trim(),
       ]);
 
-      // Clear the specific skill input field
       setNewSkill((prev) => {
         const updatedSkills = [...prev];
         updatedSkills[index] = "";
@@ -94,12 +69,15 @@ export default function SkillsForm() {
     );
   };
 
+  const updateSkillsInfo = useResumeStore((state) => state.updateSkillsInfo); // Get the update function
+
+  function onSubmit(data: z.infer<typeof skillsSchema>) {
+    updateSkillsInfo(data); // Use the update function from the store
+  }
+
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(() => console.log("Skills submitted"))}
-        className="space-y-8"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card className="shadow-md">
           <CardHeader className="bg-muted/50">
             <CardTitle className="text-2xl font-bold">
@@ -202,6 +180,7 @@ export default function SkillsForm() {
             </Button>
           </CardContent>
         </Card>
+        <Button type="submit">Save Skills</Button>
       </form>
     </Form>
   );

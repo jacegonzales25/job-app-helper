@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useResumeStore } from "@/store/resume-store";
-import { useEffect } from "react";
+import { Button } from "../ui/button";
 
 export const personalInfoSchema = z.object({
   fullName: z.string().min(1, { message: "Name is required." }),
@@ -26,47 +26,24 @@ export const personalInfoSchema = z.object({
 });
 
 export default function PersonalForm() {
-  const { personalInfo: personalInfoData, updatePersonalInfo } = useResumeStore(
-    (state) => ({
-      personalInfo: state.personalInfo,
-      updatePersonalInfo: state.updatePersonalInfo,
-    })
-  );
+  const personalInfoData = useResumeStore((state) => state.personalInfo);
+  const transformedData = {
+    ...personalInfoData,
+  };
 
   const form = useForm<z.infer<typeof personalInfoSchema>>({
     mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(personalInfoSchema),
-    defaultValues: {
-      fullName: personalInfoData?.fullName || "", // Provide empty string as default
-      location: personalInfoData?.location || "",
-      email: personalInfoData?.email || "",
-      contactNumber: personalInfoData?.contactNumber || "",
-      github: personalInfoData?.github || "",
-      linkedIn: personalInfoData?.linkedIn || "",
-    },
+    defaultValues: transformedData,
   });
 
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      const filledValues = {
-        fullName: values.fullName ?? "",
-        location: values.location ?? "",
-        email: values.email ?? "",
-        contactNumber: values.contactNumber ?? "",
-        github: values.github ?? "",
-        linkedIn: values.linkedIn ?? "",
-      };
+  const updatePersonalInfo = useResumeStore(
+    (state) => state.updatePersonalInfo
+  );
 
-      updatePersonalInfo(filledValues);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [form, updatePersonalInfo]);
-
-  function onSubmit(values: z.infer<typeof personalInfoSchema>) {
-    updatePersonalInfo(values);
-    console.log("Form Submitted: ", values);
+  function onSubmit(data: z.infer<typeof personalInfoSchema>) {
+    updatePersonalInfo(data);
   }
 
   return (
@@ -171,6 +148,7 @@ export default function PersonalForm() {
                 )}
               />
             </div>
+            <Button type="submit">Save Information</Button>
           </CardContent>
         </Card>
       </form>

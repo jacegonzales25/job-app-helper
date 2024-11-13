@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,9 +15,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
+import { useResumeStore } from "@/store/resume-store";
 
 export const certificationsSchema = z.object({
   certifications: z
@@ -40,30 +39,10 @@ export const certificationsSchema = z.object({
 });
 
 export default function CertificationsForm() {
-  const { certificationsInfo, updateCertificationsInfo } = useResumeStore(
-    (state) => ({
-      certificationsInfo: state.certificationsInfo,
-      updateCertificationsInfo: state.updateCertificationsInfo,
-    })
-  );
-  const transformedCertificationsData = {
-    certifications:
-      certificationsInfo?.certifications?.map((cert) => ({
-        ...cert,
-        from: cert.from instanceof Date ? cert.from : new Date(cert.from),
-        to: cert.to
-          ? cert.to instanceof Date
-            ? cert.to
-            : new Date(cert.to)
-          : undefined,
-      })) || [],
-  };
-
   const form = useForm<z.infer<typeof certificationsSchema>>({
-    mode: "onChange",
+    mode: "onSubmit",
     shouldUnregister: false,
     resolver: zodResolver(certificationsSchema),
-    defaultValues: transformedCertificationsData,
   });
 
   const {
@@ -75,30 +54,12 @@ export default function CertificationsForm() {
     name: "certifications",
   });
 
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      const filledValues = {
-        certifications:
-          values.certifications?.map((cert) => ({
-            title: cert?.title || "",
-            issuingOrganization: cert?.issuingOrganization || "",
-            from:
-              cert?.from instanceof Date
-                ? cert.from
-                : new Date(cert?.from || Date.now()),
-            to: cert?.to instanceof Date ? cert.to : undefined,
-            credentialID: cert?.credentialID || "",
-            credentialURL: cert?.credentialURL || "",
-          })) || [],
-      };
-      updateCertificationsInfo(filledValues);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, updateCertificationsInfo]);
+  const updateCertificationsInfo = useResumeStore(
+    (state) => state.updateCertificationsInfo
+  );
 
-  function onSubmit(values: z.infer<typeof certificationsSchema>) {
-    updateCertificationsInfo(values);
-    console.log("Form Submitted: ", values);
+  function onSubmit(data: z.infer<typeof certificationsSchema>) {
+    updateCertificationsInfo(data);
   }
 
   return (

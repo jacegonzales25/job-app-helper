@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState, ReactNode } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -15,20 +11,14 @@ type Step = {
 
 type MultiStepFormProps = {
   steps: Step[];
-  onStepComplete: (stepIndex: number) => void;
   onFormComplete: () => void;
 };
 
-export default function MultiStepForm({
-  steps,
-  onStepComplete,
-  onFormComplete,
-}: MultiStepFormProps) {
+export default function MultiStepForm({ steps, onFormComplete }: MultiStepFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      onStepComplete(currentStep);
       setCurrentStep(currentStep + 1);
     } else {
       onFormComplete();
@@ -49,7 +39,11 @@ export default function MultiStepForm({
             {steps[currentStep].component}
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button onClick={handlePrevious} disabled={currentStep === 0} variant="outline">
+            <Button
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              variant="outline"
+            >
               Previous
             </Button>
             <Button onClick={handleNext}>

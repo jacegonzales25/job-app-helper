@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,9 +16,9 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { Textarea } from "../ui/textarea";
-import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "../ui/year-month";
 import { YearMonthSelectorOptional } from "../ui/year-month-optional";
+import { useResumeStore } from "@/store/resume-store";
 
 export const experienceSchema = z.object({
   experiences: z.array(
@@ -36,32 +35,9 @@ export const experienceSchema = z.object({
 });
 
 export default function ExperienceForm() {
-  const { experienceInfo, updateExperienceInfo } = useResumeStore((state) => ({
-    experienceInfo: state.experienceInfo,
-    updateExperienceInfo: state.updateExperienceInfo,
-  }));
-
-  
-  const transformedExperienceData = {
-    experiences:
-      experienceInfo?.experiences?.map((experiences) => ({
-        ...experiences,
-        from:
-          experiences.from instanceof Date
-            ? experiences.from
-            : new Date(experiences.from),
-        to: experiences.to
-          ? experiences.to instanceof Date
-            ? experiences.to
-            : new Date(experiences.to)
-          : undefined,
-      })) || [],
-  };
   const form = useForm<z.infer<typeof experienceSchema>>({
-    mode: "onChange",
-    shouldUnregister: false,
+    mode: "onSubmit",
     resolver: zodResolver(experienceSchema),
-    defaultValues: transformedExperienceData,
   });
 
   const {
@@ -73,32 +49,12 @@ export default function ExperienceForm() {
     name: "experiences",
   });
 
-  // Update Zustand store when form data changes
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      const filledValues = {
-        experiences:
-          values.experiences?.map((exp) => ({
-            ...exp,
-            company: exp?.company || "",
-            position: exp?.position || "",
-            from:
-              exp?.from instanceof Date
-                ? exp.from
-                : new Date(exp?.from || Date.now()),
-            to: exp?.to instanceof Date ? exp.to : undefined,
-            description: exp?.description || "",
-          })) || [], // Ensure experiences is always an array
-      };
-      updateExperienceInfo(filledValues);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, updateExperienceInfo]);
+  const updateExperienceInfo = useResumeStore((state) => state.updateExperienceInfo);
 
-  function onSubmit(values: z.infer<typeof experienceSchema>) {
-    updateExperienceInfo(values);
-    console.log("Form Submitted: ", values);
-  }
+  const onSubmit = (data: z.infer<typeof experienceSchema>) => {
+    updateExperienceInfo(data); // Update the store with the form data
+    console.log("Submitted experience data:", data); // Log data for debugging
+  };
 
   return (
     <Form {...form}>
@@ -270,6 +226,7 @@ export default function ExperienceForm() {
             </Button>
           </CardContent>
         </Card>
+        <Button type="submit">Save Experiences</Button>
       </form>
     </Form>
   );

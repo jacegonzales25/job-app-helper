@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,9 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { useResumeStore } from "@/store/resume-store";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
+import { useResumeStore } from "@/store/resume-store";
 
 // Define the schema for activities
 export const activitiesSchema = z.object({
@@ -39,33 +38,10 @@ export const activitiesSchema = z.object({
 });
 
 export default function ActivitiesForm() {
-  const { activitiesInfo, updateActivitiesInfo } = useResumeStore((state) => ({
-    activitiesInfo: state.activitiesInfo,
-    updateActivitiesInfo: state.updateActivitiesInfo,
-  }));
-
-  // Transform existing activities to ensure date format
-  const transformedActivitiesData = {
-    activities:
-      activitiesInfo?.activities?.map((activity) => ({
-        ...activity,
-        from:
-          activity.from instanceof Date
-            ? activity.from
-            : new Date(activity.from),
-        to: activity.to
-          ? activity.to instanceof Date
-            ? activity.to
-            : new Date(activity.to)
-          : undefined,
-      })) || [],
-  };
-
   // Set up form handling with React Hook Form
   const form = useForm<z.infer<typeof activitiesSchema>>({
     mode: "onSubmit",
     resolver: zodResolver(activitiesSchema),
-    defaultValues: transformedActivitiesData,
   });
 
   const {
@@ -77,30 +53,12 @@ export default function ActivitiesForm() {
     name: "activities",
   });
 
-  // Sync form changes to Zustand store
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      const filledValues = {
-        activities:
-          values.activities?.map((activity) => ({
-            name: activity?.name || "",
-            role: activity?.role || "",
-            from:
-              activity?.from instanceof Date
-                ? activity.from
-                : new Date(activity?.from || Date.now()),
-            to: activity?.to instanceof Date ? activity.to : undefined,
-            description: activity?.description || "",
-          })) || [], // Ensure activities is always an array
-      };
-      updateActivitiesInfo(filledValues);
-    });
-    return () => subscription.unsubscribe();
-  }, [form, updateActivitiesInfo]);
+  const updateActivitiesInfo = useResumeStore(
+    (state) => state.updateActivitiesInfo
+  );
 
-  function onSubmit(values: z.infer<typeof activitiesSchema>) {
-    updateActivitiesInfo(values); // Updates Zustand store with form data
-    console.log("Form Submitted: ", values);
+  function onSubmit(data: z.infer<typeof activitiesSchema>) {
+    updateActivitiesInfo(data);
   }
 
   return (
@@ -271,6 +229,7 @@ export default function ActivitiesForm() {
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Activity
             </Button>
+            <Button type="submit">Save Information</Button>
           </CardContent>
         </Card>
       </form>
