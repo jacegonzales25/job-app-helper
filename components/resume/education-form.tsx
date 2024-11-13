@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { useResumeStore } from "@/store/resume-store";
+import { useToast } from "@/hooks/use-toast";
 
 export const educationSchema = z.object({
   education: z.array(
@@ -32,13 +33,13 @@ export const educationSchema = z.object({
 });
 
 export default function EducationForm() {
-
-  const educationInfo = useResumeStore((state) => state.educationInfo)
+  const educationInfo = useResumeStore((state) => state.educationInfo);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof educationSchema>>({
     mode: "onSubmit",
     resolver: zodResolver(educationSchema),
-    defaultValues: educationInfo ?? { education: [] }
+    defaultValues: educationInfo ?? { education: [] },
   });
 
   const {
@@ -55,8 +56,21 @@ export default function EducationForm() {
   );
 
   function onSubmit(data: z.infer<typeof educationSchema>) {
+    // Check for empty/default values
+    if (data.education.some((item) => !item.school || !item.degree)) {
+      toast({
+        title: "Missing values!",
+        description: "Please fill in all required fields before proceeding."
+      })
+    return;
+    }
+
+    // Save data to the store
     updateEducationInfo(data);
-  }
+    toast({
+      title: "Success!",
+      description: "Please fill in all required fields before proceeding."
+    })  }
 
   return (
     <Form {...form}>
@@ -213,6 +227,9 @@ export default function EducationForm() {
             >
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Education
+            </Button>
+            <Button type="submit">
+              Save Education
             </Button>
           </CardContent>
         </Card>

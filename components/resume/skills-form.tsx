@@ -182,9 +182,10 @@ export default function SkillsForm() {
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Skill Category
             </Button>
+            <Button type="submit">Save Skills</Button>
+
           </CardContent>
         </Card>
-        <Button type="submit">Save Skills</Button>
       </form>
     </Form>
   );

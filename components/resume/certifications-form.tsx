@@ -39,8 +39,9 @@ export const certificationsSchema = z.object({
 });
 
 export default function CertificationsForm() {
-
-  const certificationsInfo = useResumeStore((state) => state.certificationsInfo);
+  const certificationsInfo = useResumeStore(
+    (state) => state.certificationsInfo
+  );
 
   const form = useForm<z.infer<typeof certificationsSchema>>({
     mode: "onSubmit",
@@ -253,6 +254,7 @@ export default function CertificationsForm() {
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Certification
             </Button>
+            <Button type="submit">Save Certifications</Button>
           </CardContent>
         </Card>
       </form>

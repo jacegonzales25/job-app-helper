@@ -229,6 +229,7 @@ export default function ProjectForm() {
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Project
             </Button>
+            <Button type="submit">Save Projects</Button>
           </CardContent>
         </Card>
       </form>

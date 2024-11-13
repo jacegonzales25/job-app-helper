@@ -229,9 +229,9 @@ export default function ExperienceForm() {
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Experience
             </Button>
+            <Button type="submit">Save Experiences</Button>
           </CardContent>
         </Card>
-        <Button type="submit">Save Experiences</Button>
       </form>
     </Form>
   );
