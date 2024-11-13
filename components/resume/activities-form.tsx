@@ -39,9 +39,13 @@ export const activitiesSchema = z.object({
 
 export default function ActivitiesForm() {
   // Set up form handling with React Hook Form
+
+  const activitiesInfo = useResumeStore((state) => state.activitiesInfo);
+
   const form = useForm<z.infer<typeof activitiesSchema>>({
     mode: "onSubmit",
     resolver: zodResolver(activitiesSchema),
+    defaultValues: activitiesInfo ?? { activities: [] },
   });
 
   const {

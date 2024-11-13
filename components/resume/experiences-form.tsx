@@ -35,9 +35,12 @@ export const experienceSchema = z.object({
 });
 
 export default function ExperienceForm() {
+  const experienceInfo = useResumeStore((state) => state.experienceInfo);
+
   const form = useForm<z.infer<typeof experienceSchema>>({
     mode: "onSubmit",
     resolver: zodResolver(experienceSchema),
+    defaultValues: experienceInfo ?? { experiences: [] },
   });
 
   const {
@@ -49,7 +52,9 @@ export default function ExperienceForm() {
     name: "experiences",
   });
 
-  const updateExperienceInfo = useResumeStore((state) => state.updateExperienceInfo);
+  const updateExperienceInfo = useResumeStore(
+    (state) => state.updateExperienceInfo
+  );
 
   const onSubmit = (data: z.infer<typeof experienceSchema>) => {
     updateExperienceInfo(data); // Update the store with the form data

@@ -29,9 +29,13 @@ export const skillsSchema = z.object({
 });
 
 export default function SkillsForm() {
+
+  const skillsInfo = useResumeStore((state) => state.skillsInfo); // Get the skills info from the store
+
   const form = useForm<z.infer<typeof skillsSchema>>({
-    mode: "onChange",
+    mode: "onSubmit",
     resolver: zodResolver(skillsSchema),
+    defaultValues: skillsInfo ?? { skills: [] }
   });
 
   const {

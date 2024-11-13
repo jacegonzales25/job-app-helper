@@ -32,9 +32,13 @@ export const educationSchema = z.object({
 });
 
 export default function EducationForm() {
+
+  const educationInfo = useResumeStore((state) => state.educationInfo)
+
   const form = useForm<z.infer<typeof educationSchema>>({
     mode: "onSubmit",
     resolver: zodResolver(educationSchema),
+    defaultValues: educationInfo ?? { education: [] }
   });
 
   const {

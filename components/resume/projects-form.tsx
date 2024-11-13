@@ -35,9 +35,12 @@ export const projectSchema = z.object({
 });
 
 export default function ProjectForm() {
+  const projectsInfo = useResumeStore((state) => state.projectsInfo);
+
   const form = useForm<z.infer<typeof projectSchema>>({
     mode: "onSubmit",
     resolver: zodResolver(projectSchema),
+    defaultValues: projectsInfo ?? { projects: [] },
   });
 
   const {
