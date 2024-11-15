@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { FileText, PenTool, Download } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import ContactForm from "@/components/dashboard/contact-form";
 
 export default function LandingDashboard() {
   const router = useRouter();
@@ -22,19 +24,13 @@ export default function LandingDashboard() {
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <a
             className="text-sm font-medium hover:underline underline-offset-4"
-            href="#"
+            href="#how-it-works"
           >
             Features
           </a>
           <a
             className="text-sm font-medium hover:underline underline-offset-4"
-            href="#"
-          >
-            About
-          </a>
-          <a
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="#"
+            href="#contact"
           >
             Contact
           </a>
@@ -59,14 +55,14 @@ export default function LandingDashboard() {
                 <Button onClick={handleCTAClick} size="lg">
                   Start Building My Resume
                 </Button>
-                <Button variant="outline" size="lg">
-                  Learn More
-                </Button>
               </div>
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
+        <section
+          id="how-it-works"
+          className="w-full py-12 md:py-24 lg:py-32 bg-gray-100"
+        >
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
               How It Works
@@ -113,7 +109,7 @@ export default function LandingDashboard() {
             <div className="flex justify-center">
               <div className="relative w-full max-w-3xl aspect-[3/4] rounded-lg overflow-hidden shadow-xl">
                 <Image
-                  src="/placeholder.svg"
+                  src="/work-Template.png"
                   alt="Professional Resume Template"
                   layout="fill"
                   objectFit="cover"
@@ -129,18 +125,30 @@ export default function LandingDashboard() {
             </p>
           </div>
         </section>
+        <section
+          id="contact"
+          className="w-full py-12 md:py-24 lg:py-32 bg-gray-100"
+        >
+          <ContactForm />
+        </section>
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full items-center px-4 md:px-6 border-t">
         <p className="text-xs text-gray-500">
           © 2024 Resume Builder. All rights reserved.
         </p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <a className="text-xs hover:underline underline-offset-4" href="#">
+          <Link
+            href="/terms"
+            className="text-xs hover:underline underline-offset-4"
+          >
             Terms of Service
-          </a>
-          <a className="text-xs hover:underline underline-offset-4" href="#">
+          </Link>
+          <Link
+            href="/privacy"
+            className="text-xs hover:underline underline-offset-4"
+          >
             Privacy
-          </a>
+          </Link>
         </nav>
       </footer>
     </div>
