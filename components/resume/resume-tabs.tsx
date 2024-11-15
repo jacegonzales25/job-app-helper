@@ -76,24 +76,8 @@ export default function ResumeTabs() {
   const currentTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
 
   async function downloadDocument() {
-     // Collect the necessary data from your zustand store
-  const {
-    personalInfo,
-    educationInfo,
-    experienceInfo,
-    skillsInfo,
-    activitiesInfo,
-    projectsInfo,
-    certificationsInfo,
-  } = useResumeStore.getState(); // Access state directly from zustand
-
-  // Prepare the POST request with the collected data
-  const response = await fetch("/api/generate-doc", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+    // Collect the necessary data from your zustand store
+    const {
       personalInfo,
       educationInfo,
       experienceInfo,
@@ -101,17 +85,33 @@ export default function ResumeTabs() {
       activitiesInfo,
       projectsInfo,
       certificationsInfo,
-    }),
-  });
+    } = useResumeStore.getState(); // Access state directly from zustand
 
-  if (!response.ok) {
-    console.error("Failed to generate document");
-    return;
-  }
+    // Prepare the POST request with the collected data
+    const response = await fetch("/api/generate-doc", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        personalInfo,
+        educationInfo,
+        experienceInfo,
+        skillsInfo,
+        activitiesInfo,
+        projectsInfo,
+        certificationsInfo,
+      }),
+    });
 
-  // Convert the response to a blob and trigger download
-  const blob = await response.blob();
-  saveAs(blob, "Resume.docx");
+    if (!response.ok) {
+      console.error("Failed to generate document");
+      return;
+    }
+
+    // Convert the response to a blob and trigger download
+    const blob = await response.blob();
+    saveAs(blob, "Resume.docx");
   }
 
   return (

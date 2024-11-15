@@ -42,7 +42,6 @@ export default function ResumeGenerator() {
     { component: <CertificationsForm /> },
   ];
 
-
   return (
     <Card>
       <CardHeader>
