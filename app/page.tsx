@@ -107,12 +107,14 @@ export default function LandingDashboard() {
               Our Professional Template
             </h2>
             <div className="flex justify-center">
-              <div className="relative w-full max-w-3xl aspect-[3/4] rounded-lg overflow-hidden shadow-xl">
+              <div className="relative w-full max-w-3xl rounded-lg overflow-hidden shadow-xl">
                 <Image
                   src="/work-Template.png"
                   alt="Professional Resume Template"
-                  layout="fill"
-                  objectFit="cover"
+                  layout="responsive" // Change 'fill' to 'responsive' for better control
+                  width={750} // Set explicit width
+                  height={1000} // Set explicit height (to match 3:4 aspect ratio)
+                  objectFit="contain" // Use 'contain' instead of 'cover' to ensure the whole image is visible
                   className="rounded-lg"
                 />
               </div>
