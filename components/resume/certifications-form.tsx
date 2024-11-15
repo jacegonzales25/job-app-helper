@@ -18,6 +18,7 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
 import { useResumeStore } from "@/store/resume-store";
+import { useToast } from "@/hooks/use-toast";
 
 export const certificationsSchema = z.object({
   certifications: z
@@ -39,6 +40,7 @@ export const certificationsSchema = z.object({
 });
 
 export default function CertificationsForm() {
+  const { toast } = useToast();
   const certificationsInfo = useResumeStore(
     (state) => state.certificationsInfo
   );
@@ -64,6 +66,10 @@ export default function CertificationsForm() {
   );
 
   function onSubmit(data: z.infer<typeof certificationsSchema>) {
+    toast({
+      title: "Certifications Updated",
+      description: "Your personal certifications has been updated successfully.",
+    })
     updateCertificationsInfo(data);
   }
 

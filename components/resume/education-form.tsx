@@ -60,17 +60,18 @@ export default function EducationForm() {
     if (data.education.some((item) => !item.school || !item.degree)) {
       toast({
         title: "Missing values!",
-        description: "Please fill in all required fields before proceeding."
-      })
-    return;
+        description: "Please fill in all required fields before proceeding.",
+      });
+      return;
     }
 
     // Save data to the store
     updateEducationInfo(data);
     toast({
       title: "Success!",
-      description: "Please fill in all required fields before proceeding."
-    })  }
+      description: "Updated education.",
+    });
+  }
 
   return (
     <Form {...form}>
@@ -228,9 +229,7 @@ export default function EducationForm() {
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Education
             </Button>
-            <Button type="submit">
-              Save Education
-            </Button>
+            <Button type="submit">Save Education</Button>
           </CardContent>
         </Card>
       </form>

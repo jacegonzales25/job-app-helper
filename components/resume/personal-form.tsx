@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useResumeStore } from "@/store/resume-store";
 import { Button } from "../ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export const personalInfoSchema = z.object({
   fullName: z.string().min(1, { message: "Name is required." }),
@@ -26,6 +27,7 @@ export const personalInfoSchema = z.object({
 });
 
 export default function PersonalForm() {
+  const { toast } = useToast();
   const personalInfoData = useResumeStore((state) => state.personalInfo);
   const transformedData = {
     ...personalInfoData,
@@ -43,6 +45,10 @@ export default function PersonalForm() {
   );
 
   function onSubmit(data: z.infer<typeof personalInfoSchema>) {
+    toast({
+      title: "Personal Information Updated",
+      description: "Your personal information has been updated successfully.",
+    });
     updatePersonalInfo(data);
   }
 

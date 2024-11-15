@@ -19,6 +19,7 @@ import { Textarea } from "../ui/textarea";
 import { YearMonthSelector } from "../ui/year-month";
 import { YearMonthSelectorOptional } from "../ui/year-month-optional";
 import { useResumeStore } from "@/store/resume-store";
+import { useToast } from "@/hooks/use-toast";
 
 export const experienceSchema = z.object({
   experiences: z.array(
@@ -35,6 +36,7 @@ export const experienceSchema = z.object({
 });
 
 export default function ExperienceForm() {
+  const { toast } = useToast();
   const experienceInfo = useResumeStore((state) => state.experienceInfo);
 
   const form = useForm<z.infer<typeof experienceSchema>>({
@@ -57,6 +59,10 @@ export default function ExperienceForm() {
   );
 
   const onSubmit = (data: z.infer<typeof experienceSchema>) => {
+    toast({
+      title: "Work Experience Updated",
+      description: "Your work experience has been updated successfully.",
+    });
     updateExperienceInfo(data); // Update the store with the form data
     console.log("Submitted experience data:", data); // Log data for debugging
   };

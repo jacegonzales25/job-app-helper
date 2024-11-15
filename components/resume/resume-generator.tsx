@@ -19,10 +19,10 @@ import ExperienceForm from "./experiences-form";
 import ProjectForm from "./projects-form";
 import ActivitiesForm from "./activities-form";
 import CertificationsForm from "./certifications-form";
+import ResumeTabs from "./resume-tabs";
 
 export default function ResumeGenerator() {
   const [isFormOpen, setIsFormOpen] = useState(false); // State to track if the resume form is open
-  const [currentStep, setCurrentStep] = useState(0); // State to track the current step
 
   const handleOpenForm = () => {
     setIsFormOpen(true);
@@ -30,7 +30,6 @@ export default function ResumeGenerator() {
 
   const handleCloseForm = () => {
     setIsFormOpen(false);
-    setCurrentStep(0); // Reset to the first step when closing
   };
 
   const steps = [
@@ -43,17 +42,6 @@ export default function ResumeGenerator() {
     { component: <CertificationsForm /> },
   ];
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
 
   return (
     <Card>
@@ -75,19 +63,7 @@ export default function ResumeGenerator() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4">
-            {steps[currentStep].component}
-            <div className="flex justify-between w-full">
-              <Button
-                onClick={handlePrevious}
-                disabled={currentStep === 0}
-                variant="outline"
-              >
-                Previous
-              </Button>
-              <Button onClick={handleNext}>
-                {currentStep === steps.length - 1 ? "Complete" : "Next"}
-              </Button>
-            </div>
+            <ResumeTabs />
             <Button onClick={handleCloseForm} className="w-1/2 mt-4">
               Close Resume Builder
             </Button>

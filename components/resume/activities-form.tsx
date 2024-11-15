@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
 import { useResumeStore } from "@/store/resume-store";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the schema for activities
 export const activitiesSchema = z.object({
@@ -39,6 +40,8 @@ export const activitiesSchema = z.object({
 
 export default function ActivitiesForm() {
   // Set up form handling with React Hook Form
+
+  const { toast } = useToast();
 
   const activitiesInfo = useResumeStore((state) => state.activitiesInfo);
 
@@ -62,6 +65,10 @@ export default function ActivitiesForm() {
   );
 
   function onSubmit(data: z.infer<typeof activitiesSchema>) {
+    toast({
+      title: "Activities Updated",
+      description: "Your personal activities has been updated successfully.",
+    });
     updateActivitiesInfo(data);
   }
 

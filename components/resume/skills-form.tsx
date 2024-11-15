@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useResumeStore } from "@/store/resume-store";
+import { useToast } from "@/hooks/use-toast";
 
 export const skillsSchema = z.object({
   skills: z.array(
@@ -29,6 +30,8 @@ export const skillsSchema = z.object({
 });
 
 export default function SkillsForm() {
+  const { toast } = useToast();
+
 
   const skillsInfo = useResumeStore((state) => state.skillsInfo); // Get the skills info from the store
 
@@ -76,6 +79,10 @@ export default function SkillsForm() {
   const updateSkillsInfo = useResumeStore((state) => state.updateSkillsInfo); // Get the update function
 
   function onSubmit(data: z.infer<typeof skillsSchema>) {
+    toast({
+      title: "Personal Skills Updated",
+      description: "Your personal skills has been updated successfully.",
+    });
     updateSkillsInfo(data); // Use the update function from the store
   }
 

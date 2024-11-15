@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { YearMonthSelector } from "@/components/ui/year-month";
 import { YearMonthSelectorOptional } from "@/components/ui/year-month-optional";
 import { useResumeStore } from "@/store/resume-store";
+import { useToast } from "@/hooks/use-toast";
 
 export const projectSchema = z.object({
   projects: z.array(
@@ -35,6 +36,7 @@ export const projectSchema = z.object({
 });
 
 export default function ProjectForm() {
+  const { toast } = useToast();
   const projectsInfo = useResumeStore((state) => state.projectsInfo);
 
   const form = useForm<z.infer<typeof projectSchema>>({
@@ -57,6 +59,10 @@ export default function ProjectForm() {
   );
 
   function onSubmit(data: z.infer<typeof projectSchema>) {
+    toast({
+      title: "Personal Projects Updated",
+      description: "Your personal projects has been updated successfully.",
+    });
     updateProjectsInfo(data);
   }
 
