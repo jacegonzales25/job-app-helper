@@ -65,12 +65,22 @@ export default function ActivitiesForm() {
   );
 
   function onSubmit(data: z.infer<typeof activitiesSchema>) {
+    const cleanedData = {
+      activities: data.activities?.map((activity) => ({
+        ...activity,
+        to: activity.to || undefined, // Ensure 'to' is undefined if empty
+        description: activity.description
+      })),
+    };
+  
     toast({
       title: "Activities Updated",
-      description: "Your personal activities has been updated successfully.",
+      description:
+        "Your leadership experience and activities have been updated successfully.",
     });
-    updateActivitiesInfo(data);
+    updateActivitiesInfo(cleanedData);
   }
+  
 
   return (
     <Form {...form}>

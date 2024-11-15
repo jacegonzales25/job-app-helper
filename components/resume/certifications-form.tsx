@@ -64,13 +64,21 @@ export default function CertificationsForm() {
   const updateCertificationsInfo = useResumeStore(
     (state) => state.updateCertificationsInfo
   );
-
   function onSubmit(data: z.infer<typeof certificationsSchema>) {
+    const cleanedData = {
+      certifications: data.certifications?.map((cert) => ({
+        ...cert,
+        credentialID: cert.credentialID || undefined,
+        credentialURL: cert.credentialURL || undefined,
+      })),
+    };
+
     toast({
       title: "Certifications Updated",
-      description: "Your personal certifications has been updated successfully.",
-    })
-    updateCertificationsInfo(data);
+      description:
+        "Your personal certifications have been updated successfully.",
+    });
+    updateCertificationsInfo(cleanedData);
   }
 
   return (
