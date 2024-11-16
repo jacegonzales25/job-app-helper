@@ -32,13 +32,12 @@ export const skillsSchema = z.object({
 export default function SkillsForm() {
   const { toast } = useToast();
 
-
   const skillsInfo = useResumeStore((state) => state.skillsInfo); // Get the skills info from the store
 
   const form = useForm<z.infer<typeof skillsSchema>>({
     mode: "onSubmit",
     resolver: zodResolver(skillsSchema),
-    defaultValues: skillsInfo ?? { skills: [] }
+    defaultValues: skillsInfo ?? { skills: [] },
   });
 
   const {
@@ -79,11 +78,18 @@ export default function SkillsForm() {
   const updateSkillsInfo = useResumeStore((state) => state.updateSkillsInfo); // Get the update function
 
   function onSubmit(data: z.infer<typeof skillsSchema>) {
+    const cleanedData = {
+      skills: data.skills.map((skill) => ({
+        category: skill.category || "",
+        items: skill.items || [],
+      })),
+    };
+
+    updateSkillsInfo(cleanedData); // Save sanitized data to the store
     toast({
       title: "Personal Skills Updated",
-      description: "Your personal skills has been updated successfully.",
+      description: "Your personal skills have been updated successfully.",
     });
-    updateSkillsInfo(data); // Use the update function from the store
   }
 
   return (
@@ -190,7 +196,6 @@ export default function SkillsForm() {
               Add Skill Category
             </Button>
             <Button type="submit">Save Skills</Button>
-
           </CardContent>
         </Card>
       </form>

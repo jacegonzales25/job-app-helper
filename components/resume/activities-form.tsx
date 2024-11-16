@@ -31,7 +31,7 @@ export const activitiesSchema = z.object({
         from: z.date({
           required_error: "Please indicate the start date of your activity",
         }),
-        to: z.date().optional(),
+        to: z.date().nullable(),
         description: z.string(),
       })
     )
@@ -68,11 +68,11 @@ export default function ActivitiesForm() {
     const cleanedData = {
       activities: data.activities?.map((activity) => ({
         ...activity,
-        to: activity.to || undefined, // Ensure 'to' is undefined if empty
-        description: activity.description
+        to: activity.to || null, // Ensure 'to' is undefined if empty
+        description: activity.description,
       })),
     };
-  
+
     toast({
       title: "Activities Updated",
       description:
@@ -80,7 +80,6 @@ export default function ActivitiesForm() {
     });
     updateActivitiesInfo(cleanedData);
   }
-  
 
   return (
     <Form {...form}>
@@ -242,7 +241,7 @@ export default function ActivitiesForm() {
                   name: "",
                   role: "",
                   from: new Date(),
-                  to: undefined,
+                  to: null,
                   description: "",
                 })
               }

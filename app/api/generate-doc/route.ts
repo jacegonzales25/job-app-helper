@@ -10,7 +10,7 @@ import {
 
 // Helper function to split text into paragraphs based on `\n\n`
 function splitTextIntoParagraphs(text: string): string[] {
-  return text.split("\n\n").map((line) => line.trim());
+  return text?.split("\n\n").map((line) => line.trim()) || [];
 }
 
 interface Education {
@@ -53,19 +53,34 @@ interface Certification {
   credentialURL?: string;
 }
 
-
 export async function POST(req: Request) {
   try {
-    // Parse incoming request data
-    const {
-      personalInfo = {},
-      educationInfo = { education: [] },
-      experienceInfo = { experiences: [] },
-      skillsInfo = { skills: [] },
-      activitiesInfo = { activities: [] },
-      projectsInfo = { projects: [] },
-      certificationsInfo = { certifications: [] },
-    } = await req.json();
+    // Parse incoming request data with default fallback values
+    const data = await req.json();
+    const personalInfo = data.personalInfo || {
+      fullName: "",
+      location: "",
+      email: "",
+      contactNumber: "",
+      github: "",
+      linkedIn: "",
+    };
+    const educationInfo = data.educationInfo || { education: [] };
+    const experienceInfo = data.experienceInfo || { experiences: [] };
+    const skillsInfo = data.skillsInfo || { skills: [] };
+    const activitiesInfo = data.activitiesInfo || { activities: [] };
+    const projectsInfo = data.projectsInfo || { projects: [] };
+    const certificationsInfo = data.certificationsInfo || {
+      certifications: [],
+    };
+
+    // Ensure that arrays are not null or undefined
+    const education = educationInfo.education || [];
+    const experiences = experienceInfo.experiences || [];
+    const skills = skillsInfo.skills || [];
+    const activities = activitiesInfo.activities || [];
+    const projects = projectsInfo.projects || [];
+    const certifications = certificationsInfo.certifications || [];
 
     const doc = new Document({
       sections: [
@@ -93,30 +108,29 @@ export async function POST(req: Request) {
               } | ${personalInfo.contactNumber || ""}`,
               alignment: AlignmentType.CENTER,
             }),
-            personalInfo.github || personalInfo.linkedIn
-              ? new Paragraph({
-                  text: `${personalInfo.github || ""} ${
-                    personalInfo.linkedIn ? `| ${personalInfo.linkedIn}` : ""
-                  }`,
-                  alignment: AlignmentType.CENTER,
-                })
-              : null,
+            (personalInfo.github || personalInfo.linkedIn) &&
+              new Paragraph({
+                text: `${personalInfo.github || ""} ${
+                  personalInfo.linkedIn ? `| ${personalInfo.linkedIn}` : ""
+                }`,
+                alignment: AlignmentType.CENTER,
+              }),
 
             // Skills Section
             new Paragraph({
               text: "Technical Skills",
               heading: HeadingLevel.HEADING_2,
             }),
-            ...skillsInfo.skills.map(
+            ...skills.map(
               (skill: { category: string; items: string[] }) =>
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: `${skill.category}: `,
+                      text: `${skill.category || "Uncategorized"}: `,
                       bold: true,
                     }),
                     new TextRun({
-                      text: skill.items.join(", "),
+                      text: (skill.items || []).join(", "),
                     }),
                   ],
                   spacing: { before: 120, after: 120 },
@@ -128,15 +142,15 @@ export async function POST(req: Request) {
               text: "Education",
               heading: HeadingLevel.HEADING_2,
             }),
-            ...educationInfo.education.map((edu: Education) => [
+            ...education.map((edu: Education) => [
               new Paragraph({
-                children: [new TextRun({ text: edu.school, bold: true })],
+                children: [new TextRun({ text: edu.school || "", bold: true })],
               }),
-              new Paragraph({ text: edu.degree }),
+              new Paragraph({ text: edu.degree || "" }),
               new Paragraph({
-                text: `${new Date(edu.from).toLocaleDateString()} - ${new Date(
-                  edu.to
-                ).toLocaleDateString()}`,
+                text: `${
+                  edu.from ? new Date(edu.from).toLocaleDateString() : "N/A"
+                } - ${edu.to ? new Date(edu.to).toLocaleDateString() : "N/A"}`,
               }),
             ]),
 
@@ -145,21 +159,23 @@ export async function POST(req: Request) {
               text: "Work Experience",
               heading: HeadingLevel.HEADING_2,
             }),
-            ...experienceInfo.experiences.map((exp: Experience) => [
+            ...experiences.map((exp: Experience) => [
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `${exp.company} - ${exp.position}`,
+                    text: `${exp.company || ""} - ${exp.position || ""}`,
                     bold: true,
                   }),
                 ],
               }),
               new Paragraph({
-                text: `${new Date(exp.from).toLocaleDateString()} - ${
+                text: `${
+                  exp.from ? new Date(exp.from).toLocaleDateString() : "N/A"
+                } - ${
                   exp.to ? new Date(exp.to).toLocaleDateString() : "Present"
                 }`,
               }),
-              ...splitTextIntoParagraphs(exp.description).map(
+              ...splitTextIntoParagraphs(exp.description || "").map(
                 (paragraph) =>
                   new Paragraph({
                     text: paragraph,
@@ -173,13 +189,13 @@ export async function POST(req: Request) {
               text: "Projects",
               heading: HeadingLevel.HEADING_2,
             }),
-            ...projectsInfo.projects.map((project: Project) => [
+            ...projects.map((project: Project) => [
               new Paragraph({
                 children: [
-                  new TextRun({ text: project.name, bold: true }),
+                  new TextRun({ text: project.name || "", bold: true }),
                 ],
               }),
-              ...splitTextIntoParagraphs(project.description).map(
+              ...splitTextIntoParagraphs(project.description || "").map(
                 (paragraph) =>
                   new Paragraph({
                     text: paragraph,
@@ -187,7 +203,11 @@ export async function POST(req: Request) {
                   })
               ),
               new Paragraph({
-                text: `${new Date(project.from).toLocaleDateString()} - ${
+                text: `${
+                  project.from
+                    ? new Date(project.from).toLocaleDateString()
+                    : "N/A"
+                } - ${
                   project.to
                     ? new Date(project.to).toLocaleDateString()
                     : "Present"
@@ -200,23 +220,27 @@ export async function POST(req: Request) {
               text: "Leadership Experience & Activities",
               heading: HeadingLevel.HEADING_2,
             }),
-            ...activitiesInfo.activities.map((activity: Activity) => [
+            ...activities.map((activity: Activity) => [
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `${activity.name} - ${activity.role}`,
+                    text: `${activity.name || ""} - ${activity.role || ""}`,
                     bold: true,
                   }),
                 ],
               }),
               new Paragraph({
-                text: `${new Date(activity.from).toLocaleDateString()} - ${
+                text: `${
+                  activity.from
+                    ? new Date(activity.from).toLocaleDateString()
+                    : "N/A"
+                } - ${
                   activity.to
                     ? new Date(activity.to).toLocaleDateString()
                     : "Present"
                 }`,
               }),
-              ...splitTextIntoParagraphs(activity.description).map(
+              ...splitTextIntoParagraphs(activity.description || "").map(
                 (paragraph) =>
                   new Paragraph({
                     text: paragraph,
@@ -230,28 +254,30 @@ export async function POST(req: Request) {
               text: "Certifications",
               heading: HeadingLevel.HEADING_2,
             }),
-            ...certificationsInfo.certifications.map((cert: Certification) => [
+            ...certifications.map((cert: Certification) => [
               new Paragraph({
-                children: [
-                  new TextRun({ text: cert.title, bold: true }),
-                ],
+                children: [new TextRun({ text: cert.title || "", bold: true })],
               }),
               new Paragraph({
-                text: `Issuing Organization: ${cert.issuingOrganization}`,
+                text: `Issuing Organization: ${cert.issuingOrganization || ""}`,
               }),
               new Paragraph({
-                text: `${new Date(cert.from).toLocaleDateString()} - ${
-                  cert.to ? new Date(cert.to).toLocaleDateString() : "Present"
+                text: `${
+                  cert.from
+                    ? new Date(cert.from).toLocaleDateString()
+                    : "No issue date"
+                } - ${
+                  cert.to
+                    ? new Date(cert.to).toLocaleDateString()
+                    : "No expiry date"
                 }`,
               }),
-              cert.credentialID
-                ? new Paragraph({ text: `Credential ID: ${cert.credentialID}` })
-                : null,
-              cert.credentialURL
-                ? new Paragraph({
-                    text: `Credential URL: ${cert.credentialURL}`,
-                  })
-                : null,
+              cert.credentialID &&
+                new Paragraph({ text: `Credential ID: ${cert.credentialID}` }),
+              cert.credentialURL &&
+                new Paragraph({
+                  text: `Credential URL: ${cert.credentialURL}`,
+                }),
             ]),
           ].flat(),
         },

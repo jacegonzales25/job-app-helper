@@ -33,7 +33,10 @@ export const certificationsSchema = z.object({
         from: z.date({ required_error: "Please indicate the issue date" }),
         to: z.date().optional(),
         credentialID: z.string().optional(),
-        credentialURL: z.string().url().optional(),
+        credentialURL: z
+          .string()
+          .url({ message: "Invalid URL" })
+          .or(z.literal("")),
       })
     )
     .optional(),
@@ -68,8 +71,8 @@ export default function CertificationsForm() {
     const cleanedData = {
       certifications: data.certifications?.map((cert) => ({
         ...cert,
-        credentialID: cert.credentialID || undefined,
-        credentialURL: cert.credentialURL || undefined,
+        credentialID: cert.credentialID || "",
+        credentialURL: cert.credentialURL || "",
       })),
     };
 
